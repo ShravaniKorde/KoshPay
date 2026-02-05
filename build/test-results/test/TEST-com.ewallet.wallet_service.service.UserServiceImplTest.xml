@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.ewallet.wallet_service.service.UserServiceImplTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-01-17T14:57:53.545Z" hostname="DESKTOP-I49K81J" time="0.553">
+  <properties/>
+  <testcase name="createUser_LowBalance_ThrowsException()" classname="com.ewallet.wallet_service.service.UserServiceImplTest" time="0.508"/>
+  <testcase name="createUser_Success()" classname="com.ewallet.wallet_service.service.UserServiceImplTest" time="0.006"/>
+  <testcase name="login_WrongPassword_ThrowsException()" classname="com.ewallet.wallet_service.service.UserServiceImplTest" time="0.011"/>
+  <testcase name="login_Success()" classname="com.ewallet.wallet_service.service.UserServiceImplTest" time="0.011"/>
+  <testcase name="createUser_EmailExists_ThrowsException()" classname="com.ewallet.wallet_service.service.UserServiceImplTest" time="0.004"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.ewallet.wallet_service.controller.AuthControllerTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-01-17T14:57:51.995Z" hostname="DESKTOP-I49K81J" time="0.623">
+  <properties/>
+  <testcase name="login_InvalidRequest_Returns400()" classname="com.ewallet.wallet_service.controller.AuthControllerTest" time="0.422"/>
+  <testcase name="login_Success()" classname="com.ewallet.wallet_service.controller.AuthControllerTest" time="0.197"/>
+  <system-out><![CDATA[2026-01-17T20:27:50.446+05:30  INFO 18760 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.ewallet.wallet_service.controller.AuthControllerTest]: AuthControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-01-17T20:27:50.541+05:30  INFO 18760 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.ewallet.wallet_service.WalletServiceApplication for test class com.ewallet.wallet_service.controller.AuthControllerTest
+  _____        __        __    _ _      _
+ | ____|       \ \      / /_ _| | | ___| |_
+ |  _|   _____  \ \ /\ / / _` | | |/ _ \ __|
+ | |___  |____|  \ V  V / (_| | | |  __/ |_
+ |_____|          \_/\_/ \__,_|_|_|\___|\__|
+
+
+:: E-Wallet Service ::      (v)
+:: Spring Boot ::           (v3.2.12)
+2026-01-17T20:27:50.623+05:30  INFO 18760 --- [    Test worker] c.e.w.controller.AuthControllerTest      : Starting AuthControllerTest using Java 21.0.9 with PID 18760 (started by ACER in C:\Users\ACER\Downloads\ewallet_simulator)
+2026-01-17T20:27:50.624+05:30  INFO 18760 --- [    Test worker] c.e.w.controller.AuthControllerTest      : No active profile set, falling back to 1 default profile: "default"
+2026-01-17T20:27:51.799+05:30  WARN 18760 --- [    Test worker] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 65b4afde-61b7-4095-b6b2-5e518b44c74f
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-01-17T20:27:51.867+05:30  INFO 18760 --- [    Test worker] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@78543f0d, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@10e28d97, org.springframework.security.web.context.SecurityContextHolderFilter@33c976b1, org.springframework.security.web.header.HeaderWriterFilter@274f51ad, org.springframework.security.web.csrf.CsrfFilter@25874884, org.springframework.security.web.authentication.logout.LogoutFilter@65dac812, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter@193e65d5, org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter@28ec35e3, org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter@37d43b9b, org.springframework.security.web.authentication.www.BasicAuthenticationFilter@2e962cec, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@2c95cb24, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@75f3c0c9, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@28ba90c1, org.springframework.security.web.access.ExceptionTranslationFilter@7335414e, org.springframework.security.web.access.intercept.AuthorizationFilter@7de4bd8f]
+2026-01-17T20:27:51.940+05:30  INFO 18760 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-01-17T20:27:51.941+05:30  INFO 18760 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-01-17T20:27:51.942+05:30  INFO 18760 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-01-17T20:27:51.972+05:30  INFO 18760 --- [    Test worker] c.e.w.controller.AuthControllerTest      : Started AuthControllerTest in 1.422 seconds (process running for 13.374)
+2026-01-17T20:27:52.395+05:30  WARN 18760 --- [    Test worker] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<com.ewallet.wallet_service.dto.response.AuthResponse> com.ewallet.wallet_service.controller.AuthController.login(com.ewallet.wallet_service.dto.request.LoginRequest) with 2 errors: [Field error in object 'loginRequest' on field 'email': rejected value [null]; codes [NotBlank.loginRequest.email,NotBlank.email,NotBlank.java.lang.String,NotBlank]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [loginRequest.email,email]; arguments []; default message [email]]; default message [must not be blank]] [Field error in object 'loginRequest' on field 'password': rejected value [null]; codes [NotBlank.loginRequest.password,NotBlank.password,NotBlank.java.lang.String,NotBlank]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [loginRequest.password,password]; arguments []; default message [password]]; default message [must not be blank]] ]
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

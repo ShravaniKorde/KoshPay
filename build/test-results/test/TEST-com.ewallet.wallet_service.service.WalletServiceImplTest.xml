@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.ewallet.wallet_service.service.WalletServiceImplTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-01-17T14:57:54.103Z" hostname="DESKTOP-I49K81J" time="0.547">
+  <properties/>
+  <testcase name="getMyTransactionHistory_Success()" classname="com.ewallet.wallet_service.service.WalletServiceImplTest" time="0.458"/>
+  <testcase name="transfer_Success()" classname="com.ewallet.wallet_service.service.WalletServiceImplTest" time="0.056"/>
+  <testcase name="getMyBalance_Success()" classname="com.ewallet.wallet_service.service.WalletServiceImplTest" time="0.008"/>
+  <testcase name="transfer_InsufficientBalance()" classname="com.ewallet.wallet_service.service.WalletServiceImplTest" time="0.02"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

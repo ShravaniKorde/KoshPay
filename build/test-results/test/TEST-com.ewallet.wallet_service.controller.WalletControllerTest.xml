@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.ewallet.wallet_service.controller.WalletControllerTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-01-17T14:57:53.450Z" hostname="DESKTOP-I49K81J" time="0.082">
+  <properties/>
+  <testcase name="transfer_Success()" classname="com.ewallet.wallet_service.controller.WalletControllerTest" time="0.064"/>
+  <testcase name="getMyBalance_Success()" classname="com.ewallet.wallet_service.controller.WalletControllerTest" time="0.015"/>
+  <system-out><![CDATA[2026-01-17T20:27:52.625+05:30  INFO 18760 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.ewallet.wallet_service.controller.WalletControllerTest]: WalletControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-01-17T20:27:52.642+05:30  INFO 18760 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.ewallet.wallet_service.WalletServiceApplication for test class com.ewallet.wallet_service.controller.WalletControllerTest
+  _____        __        __    _ _      _
+ | ____|       \ \      / /_ _| | | ___| |_
+ |  _|   _____  \ \ /\ / / _` | | |/ _ \ __|
+ | |___  |____|  \ V  V / (_| | | |  __/ |_
+ |_____|          \_/\_/ \__,_|_|_|\___|\__|
+
+
+:: E-Wallet Service ::      (v)
+:: Spring Boot ::           (v3.2.12)
+2026-01-17T20:27:52.745+05:30  INFO 18760 --- [    Test worker] c.e.w.controller.WalletControllerTest    : Starting WalletControllerTest using Java 21.0.9 with PID 18760 (started by ACER in C:\Users\ACER\Downloads\ewallet_simulator)
+2026-01-17T20:27:52.745+05:30  INFO 18760 --- [    Test worker] c.e.w.controller.WalletControllerTest    : No active profile set, falling back to 1 default profile: "default"
+2026-01-17T20:27:53.402+05:30  WARN 18760 --- [    Test worker] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 30db105c-4dd2-425a-aacb-728671fc74af
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-01-17T20:27:53.416+05:30  INFO 18760 --- [    Test worker] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@5f82dd9a, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@71b253b, org.springframework.security.web.context.SecurityContextHolderFilter@4ff2ac2d, org.springframework.security.web.header.HeaderWriterFilter@23038621, org.springframework.security.web.csrf.CsrfFilter@1cd25514, org.springframework.security.web.authentication.logout.LogoutFilter@3f06c9ac, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter@2f9bd5ac, org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter@15e8e884, org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter@765cb6c1, org.springframework.security.web.authentication.www.BasicAuthenticationFilter@2659225a, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@41862a32, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@2a654167, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@19f811a2, org.springframework.security.web.access.ExceptionTranslationFilter@6bd01b0e, org.springframework.security.web.access.intercept.AuthorizationFilter@6d16aae3]
+2026-01-17T20:27:53.432+05:30  INFO 18760 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-01-17T20:27:53.432+05:30  INFO 18760 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-01-17T20:27:53.433+05:30  INFO 18760 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-01-17T20:27:53.443+05:30  INFO 18760 --- [    Test worker] c.e.w.controller.WalletControllerTest    : Started WalletControllerTest in 0.794 seconds (process running for 14.845)
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

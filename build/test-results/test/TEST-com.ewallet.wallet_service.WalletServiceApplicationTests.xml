@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.ewallet.wallet_service.WalletServiceApplicationTests" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-01-17T14:57:49.352Z" hostname="DESKTOP-I49K81J" time="1.058">
+  <properties/>
+  <testcase name="contextLoads()" classname="com.ewallet.wallet_service.WalletServiceApplicationTests" time="1.058"/>
+  <system-out><![CDATA[20:27:40.378 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.ewallet.wallet_service.WalletServiceApplicationTests]: WalletServiceApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+20:27:40.541 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.ewallet.wallet_service.WalletServiceApplication for test class com.ewallet.wallet_service.WalletServiceApplicationTests
+  _____        __        __    _ _      _
+ | ____|       \ \      / /_ _| | | ___| |_
+ |  _|   _____  \ \ /\ / / _` | | |/ _ \ __|
+ | |___  |____|  \ V  V / (_| | | |  __/ |_
+ |_____|          \_/\_/ \__,_|_|_|\___|\__|
+
+
+:: E-Wallet Service ::      (v)
+:: Spring Boot ::           (v3.2.12)
+2026-01-17T20:27:41.135+05:30  INFO 18760 --- [    Test worker] c.e.w.WalletServiceApplicationTests      : Starting WalletServiceApplicationTests using Java 21.0.9 with PID 18760 (started by ACER in C:\Users\ACER\Downloads\ewallet_simulator)
+2026-01-17T20:27:41.145+05:30  INFO 18760 --- [    Test worker] c.e.w.WalletServiceApplicationTests      : No active profile set, falling back to 1 default profile: "default"
+2026-01-17T20:27:42.865+05:30  INFO 18760 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-01-17T20:27:42.967+05:30  INFO 18760 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 90 ms. Found 4 JPA repository interfaces.
+2026-01-17T20:27:43.846+05:30  INFO 18760 --- [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-01-17T20:27:43.976+05:30  INFO 18760 --- [    Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.10.Final
+2026-01-17T20:27:44.037+05:30  INFO 18760 --- [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-01-17T20:27:44.430+05:30  INFO 18760 --- [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-01-17T20:27:44.471+05:30  INFO 18760 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-01-17T20:27:45.057+05:30  INFO 18760 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@6774f264
+2026-01-17T20:27:45.060+05:30  INFO 18760 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-01-17T20:27:45.138+05:30  WARN 18760 --- [    Test worker] org.hibernate.orm.deprecation            : HHH90000025: MySQL8Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-01-17T20:27:45.140+05:30  WARN 18760 --- [    Test worker] org.hibernate.orm.deprecation            : HHH90000026: MySQL8Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
+2026-01-17T20:27:46.955+05:30  INFO 18760 --- [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-01-17T20:27:47.128+05:30  INFO 18760 --- [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-01-17T20:27:48.165+05:30  WARN 18760 --- [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-01-17T20:27:48.641+05:30  INFO 18760 --- [    Test worker] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@509bf2d5, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@68823b6b, org.springframework.security.web.context.SecurityContextHolderFilter@5166fe7a, org.springframework.security.web.header.HeaderWriterFilter@2c10f9f3, org.springframework.security.web.authentication.logout.LogoutFilter@1df8ea34, com.ewallet.wallet_service.security.JwtFilter@48dc06a9, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@3b09582d, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@4f8488ef, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@4b4b02d, org.springframework.security.web.access.ExceptionTranslationFilter@5687e92d, org.springframework.security.web.access.intercept.AuthorizationFilter@4f78adf]
+2026-01-17T20:27:49.287+05:30  INFO 18760 --- [    Test worker] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-01-17T20:27:49.291+05:30  INFO 18760 --- [    Test worker] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@4e7bf371]]
+2026-01-17T20:27:49.292+05:30  INFO 18760 --- [    Test worker] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-01-17T20:27:49.317+05:30  INFO 18760 --- [    Test worker] c.e.w.WalletServiceApplicationTests      : Started WalletServiceApplicationTests in 8.555 seconds (process running for 10.719)
+]]></system-out>
+  <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (C:\Users\ACER\.gradle\caches\modules-2\files-2.1\net.bytebuddy\byte-buddy-agent\1.14.19\154da3a65b4f4a909d3e5bdec55d1b2b4cbb6ce1\byte-buddy-agent-1.14.19.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+]]></system-err>
+</testsuite>
