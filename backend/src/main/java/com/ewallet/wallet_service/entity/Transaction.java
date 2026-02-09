@@ -7,6 +7,9 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+
 @Entity
 @Table(name = "transactions")
 @Getter
@@ -30,4 +33,9 @@ public class Transaction {
 
     @Column(nullable = false)
     private LocalDateTime timestamp;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TransactionStatus status = TransactionStatus.SUCCESS;
+
 }
