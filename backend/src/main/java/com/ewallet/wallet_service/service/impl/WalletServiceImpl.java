@@ -19,6 +19,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+//fraud engine modules
+import com.ewallet.wallet_service.fraud.model.FraudContext;
+import com.ewallet.wallet_service.fraud.service.FraudDecision;
+import com.ewallet.wallet_service.fraud.model.FraudResult;
+import com.ewallet.wallet_service.fraud.service.FraudDetectionService;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,19 +41,23 @@ public class WalletServiceImpl implements WalletService {
     private final UserRepository userRepository;
     private final BalanceWebSocketService balanceWebSocketService;
     private final AuditLogService auditLogService;
+    //fraud engine field
+    private final FraudDetectionService fraudDetectionService;
 
     public WalletServiceImpl(
             WalletRepository walletRepository,
             TransactionRepository transactionRepository,
             UserRepository userRepository,
             BalanceWebSocketService balanceWebSocketService,
-            AuditLogService auditLogService
+            AuditLogService auditLogService,
+            FraudDetectionService fraudDetectionService
     ) {
         this.walletRepository = walletRepository;
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
         this.balanceWebSocketService = balanceWebSocketService;
         this.auditLogService = auditLogService;
+        this.fraudDetectionService = fraudDetectionService;
     }
 
     // =============================
@@ -136,6 +146,37 @@ public class WalletServiceImpl implements WalletService {
                 throw new InsufficientBalanceException(
                         "Insufficient balance");
             }
+
+                // =============================
+                // FRAUD CHECK (BEFORE MONEY MOVE)
+                // =============================
+                FraudContext fraudContext = new FraudContext(toWalletId, toWalletId, receiverOldBal);
+                fraudContext.setFromWalletId(fromWallet.getId());
+                fraudContext.setToWalletId(toWalletId);
+                fraudContext.setAmount(amount);
+
+                FraudResult fraudResult = fraudDetectionService.evaluate(fraudContext);
+
+                if (fraudResult.getDecision() == FraudDecision.BLOCK) {
+
+                log.warn(
+                        "Transfer blocked by fraud engine. fromWallet={}, toWallet={}, amount={}, riskScore={}",
+                        fromWallet.getId(),
+                        toWalletId,
+                        amount,
+                        fraudResult.getRiskScore()
+                );
+
+                auditLogService.log(
+                        fromWallet.getUser(),
+                        "TRANSFER",
+                        "FRAUD_BLOCK",
+                        senderOldBal,
+                        senderOldBal
+                );
+
+                throw new RuntimeException("Transaction blocked due to fraud risk");
+                }
 
             // ACID section
             fromWallet.setBalance(senderOldBal.subtract(amount));
