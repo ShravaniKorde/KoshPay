@@ -29,6 +29,8 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
+import com.ewallet.wallet_service.entity.TransactionStatus;
+import com.ewallet.wallet_service.service.TransactionStatusService;
 
 @Service
 @Transactional
@@ -44,6 +46,7 @@ public class WalletServiceImpl implements WalletService {
     private final AuditLogService auditLogService;
     //fraud engine field
     private final FraudDetectionService fraudDetectionService;
+    private final TransactionStatusService statusService; // HIGHLIGHT: Added Service
 
     public WalletServiceImpl(
             WalletRepository walletRepository,
@@ -51,7 +54,8 @@ public class WalletServiceImpl implements WalletService {
             UserRepository userRepository,
             BalanceWebSocketService balanceWebSocketService,
             AuditLogService auditLogService,
-            FraudDetectionService fraudDetectionService
+            FraudDetectionService fraudDetectionService,
+            TransactionStatusService statusService // HIGHLIGHT: Injected Service
     ) {
         this.walletRepository = walletRepository;
         this.transactionRepository = transactionRepository;
@@ -59,6 +63,7 @@ public class WalletServiceImpl implements WalletService {
         this.balanceWebSocketService = balanceWebSocketService;
         this.auditLogService = auditLogService;
         this.fraudDetectionService = fraudDetectionService;
+        this.statusService = statusService;
     }
 
     // =============================
@@ -102,194 +107,121 @@ public class WalletServiceImpl implements WalletService {
     // =============================
     // TRANSFER MONEY (ACID)
     // =============================
-    @Override
-    public void transfer(Long toWalletId, BigDecimal amount) {
+        @Override
+        @Transactional
+        public void transfer(Long toWalletId, BigDecimal amount) {
+                Wallet sender = getCurrentUserWallet();
+                // PREVENT SELF-TRANSFER ===
+        if (sender.getId().equals(toWalletId)) {
+                log.warn("Self-transfer attempt blocked for walletId: {}", sender.getId());
+                throw new IllegalArgumentException("You cannot transfer money to your own wallet.");
+        }
+        Wallet receiver = walletRepository.findById(toWalletId)
+                .orElseThrow(() -> new ResourceNotFoundException("Receiver wallet not found"));
 
-        Wallet fromWallet = getCurrentUserWallet();
-        Wallet toWallet = walletRepository.findById(toWalletId)
-                .orElseThrow(() -> {
-                    log.warn("Transfer failed: target wallet {} not found",
-                            toWalletId);
-                    return new ResourceNotFoundException(
-                            "Target wallet not found");
-                });
+        BigDecimal senderOldBal = sender.getBalance();
+        
+        // =============================
+        // FRAUD CHECK (BEFORE MONEY MOVE)
+        // =============================
+        FraudContext fraudContext = new FraudContext(toWalletId, toWalletId, receiverOldBal);
+        fraudContext.setFromWalletId(fromWallet.getId());
+        fraudContext.setToWalletId(toWalletId);
+        fraudContext.setAmount(amount);
+        fraudContext.setCurrentBalance(fromWallet.getBalance());
 
-        BigDecimal senderOldBal = fromWallet.getBalance();
-        BigDecimal receiverOldBal = toWallet.getBalance();
+        FraudResult fraudResult = fraudDetectionService.evaluate(fraudContext);
 
-        log.info(
-            "Transfer initiated from walletId={} to walletId={}, amount={}",
-            fromWallet.getId(),
-            toWalletId,
-            amount
-        );
+        if (fraudResult.getDecision() == FraudDecision.BLOCK) {
 
-        try {
-            if (fromWallet.getId().equals(toWalletId)) {
-                log.warn("Transfer failed: same source and target wallet");
-                throw new IllegalArgumentException(
-                        "Cannot transfer to same wallet");
-            }
-
-            if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-                log.warn("Transfer failed: invalid amount {}", amount);
-                throw new IllegalArgumentException(
-                        "Transfer amount must be positive");
-            }
-
-            if (fromWallet.getBalance().compareTo(amount) < 0) {
-                log.warn(
-                    "Transfer failed: insufficient balance. walletId={}, balance={}, amount={}",
-                    fromWallet.getId(),
-                    fromWallet.getBalance(),
-                    amount
-                );
-                throw new InsufficientBalanceException(
-                        "Insufficient balance");
-            }
-
-                // =============================
-                // FRAUD CHECK (BEFORE MONEY MOVE)
-                // =============================
-                FraudContext fraudContext = new FraudContext(toWalletId, toWalletId, receiverOldBal);
-                fraudContext.setFromWalletId(fromWallet.getId());
-                fraudContext.setToWalletId(toWalletId);
-                fraudContext.setAmount(amount);
-                fraudContext.setCurrentBalance(fromWallet.getBalance());
-
-                FraudResult fraudResult = fraudDetectionService.evaluate(fraudContext);
-
-                if (fraudResult.getDecision() == FraudDecision.BLOCK) {
-
-                log.warn(
-                        "Transfer blocked by fraud engine. fromWallet={}, toWallet={}, amount={}, riskScore={}",
-                        fromWallet.getId(),
-                        toWalletId,
-                        amount,
-                        fraudResult.getRiskScore()
-                );
-
-                auditLogService.log(
-                        fromWallet.getUser(),
-                        "TRANSFER",
-                        "FRAUD_BLOCK",
-                        senderOldBal,
-                        senderOldBal
-                );
-
-                throw new RuntimeException("Transaction blocked due to fraud risk");
-                }
-
-            // ACID section
-            fromWallet.setBalance(senderOldBal.subtract(amount));
-            toWallet.setBalance(receiverOldBal.add(amount));
-
-            walletRepository.save(fromWallet);
-            walletRepository.save(toWallet);
-
-            Transaction tx = new Transaction();
-            tx.setFromWallet(fromWallet);
-            tx.setToWallet(toWallet);
-            tx.setAmount(amount);
-            tx.setTimestamp(Instant.now());
-
-            transactionRepository.save(tx);
-
-            // AUDIT LOGS
-            auditLogService.log(
-                    fromWallet.getUser(),
-                    "TRANSFER",
-                    "SUCCESS",
-                    senderOldBal,
-                    fromWallet.getBalance()
-            );
-
-            auditLogService.log(
-                    toWallet.getUser(),
-                    "RECEIVE",
-                    "SUCCESS",
-                    receiverOldBal,
-                    toWallet.getBalance()
-            );
-
-            // REAL-TIME UPDATES
-            balanceWebSocketService.publishBalance(
-                    fromWallet.getId(),
-                    fromWallet.getBalance()
-            );
-
-            balanceWebSocketService.publishBalance(
-                    toWallet.getId(),
-                    toWallet.getBalance()
-            );
-
-            log.info(
-                "Transfer successful. fromWallet={}, toWallet={}, amount={}",
-                fromWallet.getId(),
-                toWallet.getId(),
-                amount
-            );
-
-        } catch (Exception e) {
-
-            log.error(
-                "Transfer failed. fromWallet={}, toWallet={}, amount={}",
+        log.warn(
+        "Transfer blocked by fraud engine. fromWallet={}, toWallet={}, amount={}, riskScore={}",
                 fromWallet.getId(),
                 toWalletId,
                 amount,
-                e
-            );
+                fraudResult.getRiskScore()
+        );
 
-            auditLogService.log(
-                    fromWallet.getUser(),
-                    "TRANSFER",
-                    "FAILURE",
-                    senderOldBal,
-                    senderOldBal
-            );
+        auditLogService.log(
+                fromWallet.getUser(),
+        "TRANSFER",
+        "FRAUD_BLOCK",
+                senderOldBal,
+                senderOldBal
+        );
 
-            throw e; // rollback
+        throw new RuntimeException("Transaction blocked due to fraud risk");
+        }
+        // STEP 1: Create record in INITIATED status
+        Transaction tx = new Transaction();
+        tx.setFromWallet(sender);
+        tx.setToWallet(receiver);
+        tx.setAmount(amount);
+        tx.setTimestamp(LocalDateTime.now());
+        statusService.updateStatus(tx, TransactionStatus.INITIATED);
+        
+        log.info(">>> STATUS: INITIATED. Sleeping for 10s...");
+        //     try { Thread.sleep(10000); } catch (InterruptedException e) { } // To check status in DB
+
+        try {
+            // HIGHLIGHT: 2. Validation
+            if (sender.getBalance().compareTo(amount) < 0) {
+                // This status persists even though we throw an exception next
+                statusService.updateStatus(tx, TransactionStatus.FAILED); 
+                throw new InsufficientBalanceException("Insufficient balance");
+            }
+
+           // HIGHLIGHT: 3. PENDING
+            statusService.updateStatus(tx, TransactionStatus.PENDING);
+            log.info(">>> STATUS: PENDING. Sleeping for 5s...");
+            // try { Thread.sleep(10000); } catch (InterruptedException e) { } // To check status in DB
+
+            // HIGHLIGHT: 4. Execution (Balance Update) // ACID section
+            sender.setBalance(sender.getBalance().subtract(amount));
+            receiver.setBalance(receiver.getBalance().add(amount));
+            
+            walletRepository.save(sender);
+            walletRepository.save(receiver);
+
+            // HIGHLIGHT: 5. SUCCESS
+            statusService.updateStatus(tx, TransactionStatus.SUCCESS);
+            log.info(">>> STATUS: SUCCESS.");
+
+            // Notifications // AUDIT LOGS
+            auditLogService.log(sender.getUser(), "TRANSFER", "SUCCESS", senderOldBal, sender.getBalance());
+             
+            // REAL-TIME UPDATES
+            balanceWebSocketService.publishBalance(sender.getId(), sender.getBalance());
+            balanceWebSocketService.publishBalance(receiver.getId(), receiver.getBalance());
+
+        } catch (Exception e) {
+            // HIGHLIGHT: 6. FAILED (Catch-all for any errors)
+            statusService.updateStatus(tx, TransactionStatus.FAILED);
+            auditLogService.log(sender.getUser(), "TRANSFER", "FAILURE", senderOldBal, senderOldBal);
+            throw e; // Rethrow to trigger rollback of balance changes
         }
     }
 
-    // =============================
-    // TRANSACTION HISTORY
-    // =============================
-    @Override
-    public List<TransactionResponse> getMyTransactionHistory() {
+     // =============================
+     // TRANSACTION HISTORY
+     // =============================
+        @Override
+        @Transactional(readOnly = true)
+        public List<TransactionResponse> getMyTransactionHistory() {
+                Wallet wallet = getCurrentUserWallet();
+                List<Transaction> transactions = transactionRepository
+                .findByFromWalletIdOrToWalletIdOrderByTimestampDesc(wallet.getId(), wallet.getId());
 
-        Wallet wallet = getCurrentUserWallet();
-
-        log.info("Fetching transaction history for walletId={}",
-                wallet.getId());
-
-        List<Transaction> transactions =
-                transactionRepository
-                        .findByFromWalletIdOrToWalletIdOrderByTimestampDesc(
-                                wallet.getId(),
-                                wallet.getId()
-                        );
-
-        log.info(
-            "Transaction history fetched for walletId={}, count={}",
-            wallet.getId(),
-            transactions.size()
-        );
-
-        return transactions.stream().map(tx -> {
-
-            boolean isDebit =
-                    tx.getFromWallet().getId().equals(wallet.getId());
-
-            return new TransactionResponse(
+                return transactions.stream().map(tx -> {
+                boolean isDebit = tx.getFromWallet().getId().equals(wallet.getId());
+                return new TransactionResponse(
                     tx.getId(),
                     isDebit ? "DEBIT" : "CREDIT",
                     tx.getAmount(),
-                    isDebit
-                            ? tx.getToWallet().getId()
-                            : tx.getFromWallet().getId(),
-                    tx.getTimestamp()
-            );
-        }).toList();
-    }
+                    isDebit ? tx.getToWallet().getId() : tx.getFromWallet().getId(),
+                    tx.getTimestamp(),
+                    tx.getStatus().name() // HIGHLIGHT: Returns the Enum name
+                );
+                }).toList();
+        }
 }

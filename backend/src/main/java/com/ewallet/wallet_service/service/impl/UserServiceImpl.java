@@ -4,13 +4,16 @@ import com.ewallet.wallet_service.dto.request.LoginRequest;
 import com.ewallet.wallet_service.dto.request.UserCreateRequest;
 import com.ewallet.wallet_service.dto.response.AuthResponse;
 import com.ewallet.wallet_service.entity.User;
+import com.ewallet.wallet_service.entity.VirtualPaymentAddress;
 import com.ewallet.wallet_service.entity.Wallet;
 import com.ewallet.wallet_service.exception.InvalidRequestException;
 import com.ewallet.wallet_service.repository.UserRepository;
+import com.ewallet.wallet_service.repository.VirtualPaymentAddressRepository;
 import com.ewallet.wallet_service.repository.WalletRepository;
 import com.ewallet.wallet_service.security.JwtUtil;
 import com.ewallet.wallet_service.service.AuditLogService;
 import com.ewallet.wallet_service.service.UserService;
+import com.ewallet.wallet_service.service.util.UpiIdGenerator;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,12 +35,13 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final WalletRepository walletRepository;
+    private final VirtualPaymentAddressRepository vpaRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final AuditLogService auditLogService;
 
     // =============================
-    // CREATE USER + WALLET
+    // CREATE USER + WALLET + UPI ID
     // =============================
     @Override
     @Transactional
@@ -65,6 +69,7 @@ public class UserServiceImpl implements UserService {
             );
         }
 
+        // -------- ORIGINAL USER CREATION --------
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
@@ -72,21 +77,38 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(user);
 
+        // -------- ORIGINAL WALLET CREATION --------
         Wallet wallet = new Wallet();
         wallet.setUser(user);
         wallet.setBalance(request.getInitialBalance());
 
         walletRepository.save(wallet);
 
+        // -------- NEW: UPI ID CREATION (EXTENSION ONLY) --------
+        String base = UpiIdGenerator.generateBase(user.getName());
+        int suffix = 0;
+        String upiId;
+
+        do {
+            upiId = UpiIdGenerator.build(base, suffix++);
+        } while (vpaRepository.existsByUpiId(upiId));
+
+        VirtualPaymentAddress vpa = new VirtualPaymentAddress();
+        vpa.setUpiId(upiId);
+        vpa.setUser(user);
+
+        vpaRepository.save(vpa);
+
         log.info(
-            "User created successfully. userId={}, walletBalance={}",
+            "User created successfully. userId={}, walletBalance={}, upiId={}",
             user.getId(),
-            wallet.getBalance()
+            wallet.getBalance(),
+            upiId
         );
     }
 
     // =============================
-    // LOGIN
+    // LOGIN (UNCHANGED)
     // =============================
     @Override
     public AuthResponse login(LoginRequest request) {
