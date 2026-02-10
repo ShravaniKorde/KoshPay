@@ -155,6 +155,7 @@ public class WalletServiceImpl implements WalletService {
                 fraudContext.setFromWalletId(fromWallet.getId());
                 fraudContext.setToWalletId(toWalletId);
                 fraudContext.setAmount(amount);
+                fraudContext.setCurrentBalance(fromWallet.getBalance());
 
                 FraudResult fraudResult = fraudDetectionService.evaluate(fraudContext);
 

@@ -10,7 +10,16 @@ public class FraudContext {
     private BigDecimal amount;
     private Long userId;
     private LocalDateTime transactionTime;
+    private BigDecimal currentBalance;
     
+    public BigDecimal getCurrentBalance() {
+        return currentBalance;
+    }
+
+    public void setCurrentBalance(BigDecimal currentBalance) {
+        this.currentBalance = currentBalance;
+    }
+
     public FraudContext(Long fromWalletId, Long toWalletId, BigDecimal amount) {
         this.fromWalletId = fromWalletId;
         this.toWalletId = toWalletId;
