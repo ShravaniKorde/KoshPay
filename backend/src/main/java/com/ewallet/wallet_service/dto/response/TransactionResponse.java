@@ -20,4 +20,7 @@ public class TransactionResponse {
     private Long counterpartyWalletId;
 
     private LocalDateTime timestamp;
+
+    private String status; // New field
+   
 }
