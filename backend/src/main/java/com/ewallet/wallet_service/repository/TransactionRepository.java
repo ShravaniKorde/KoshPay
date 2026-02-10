@@ -18,4 +18,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             Long fromWalletId,
             Instant timestamp
     );
+
+    boolean existsByFromWalletIdAndToWalletId(
+        Long fromWalletId,
+        Long toWalletId
+    );
+
 }
