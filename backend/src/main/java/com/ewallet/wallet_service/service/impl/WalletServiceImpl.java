@@ -124,28 +124,30 @@ public class WalletServiceImpl implements WalletService {
         // =============================
         // FRAUD CHECK (BEFORE MONEY MOVE)
         // =============================
-        FraudContext fraudContext = new FraudContext(toWalletId, toWalletId, receiverOldBal);
-        fraudContext.setFromWalletId(fromWallet.getId());
-        fraudContext.setToWalletId(toWalletId);
-        fraudContext.setAmount(amount);
-        fraudContext.setCurrentBalance(fromWallet.getBalance());
+        FraudContext fraudContext = new FraudContext(
+                sender.getId(),
+                receiver.getId(),
+                amount
+        );
+        fraudContext.setUserId(sender.getUser().getId());
+        fraudContext.setTransactionTime(LocalDateTime.now());
 
         FraudResult fraudResult = fraudDetectionService.evaluate(fraudContext);
 
         if (fraudResult.getDecision() == FraudDecision.BLOCK) {
 
         log.warn(
-        "Transfer blocked by fraud engine. fromWallet={}, toWallet={}, amount={}, riskScore={}",
-                fromWallet.getId(),
-                toWalletId,
+                "Transfer blocked by fraud engine. fromWallet={}, toWallet={}, amount={}, riskScore={}",
+                sender.getId(),
+                receiver.getId(),
                 amount,
                 fraudResult.getRiskScore()
         );
 
         auditLogService.log(
-                fromWallet.getUser(),
-        "TRANSFER",
-        "FRAUD_BLOCK",
+                sender.getUser(),
+                "TRANSFER",
+                "FRAUD_BLOCK",
                 senderOldBal,
                 senderOldBal
         );
@@ -157,7 +159,7 @@ public class WalletServiceImpl implements WalletService {
         tx.setFromWallet(sender);
         tx.setToWallet(receiver);
         tx.setAmount(amount);
-        tx.setTimestamp(LocalDateTime.now());
+        tx.setTimestamp(Instant.now());
         statusService.updateStatus(tx, TransactionStatus.INITIATED);
         
         log.info(">>> STATUS: INITIATED. Sleeping for 10s...");
