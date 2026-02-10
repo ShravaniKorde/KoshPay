@@ -5,7 +5,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
+
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 
 @Entity
 @Table(name = "transactions")
@@ -29,5 +32,9 @@ public class Transaction {
     private BigDecimal amount;
 
     @Column(nullable = false)
-    private LocalDateTime timestamp;
+    private Instant timestamp;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TransactionStatus status = TransactionStatus.SUCCESS;
 }

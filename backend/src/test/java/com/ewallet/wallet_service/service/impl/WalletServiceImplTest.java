@@ -1,4 +1,4 @@
-package com.ewallet.wallet_service.service;
+package com.ewallet.wallet_service.service.impl;
 
 import com.ewallet.wallet_service.dto.response.TransactionResponse;
 import com.ewallet.wallet_service.dto.response.WalletResponse;
@@ -10,6 +10,8 @@ import com.ewallet.wallet_service.exception.ResourceNotFoundException;
 import com.ewallet.wallet_service.repository.TransactionRepository;
 import com.ewallet.wallet_service.repository.UserRepository;
 import com.ewallet.wallet_service.repository.WalletRepository;
+import com.ewallet.wallet_service.service.AuditLogService;
+import com.ewallet.wallet_service.service.BalanceWebSocketService;
 import com.ewallet.wallet_service.service.impl.WalletServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
