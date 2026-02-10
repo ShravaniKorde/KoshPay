@@ -13,6 +13,10 @@ public class FraudDetectionService {
 
     public FraudDetectionService(List<FraudRule> rules) {
         this.rules = rules;
+        System.out.println("Fraud rules loaded count = " + rules.size());
+        rules.forEach(r -> 
+            System.out.println("Loaded rule: " + r.getClass().getSimpleName())
+        );
     }
 
     public FraudResult evaluate(FraudContext context) {

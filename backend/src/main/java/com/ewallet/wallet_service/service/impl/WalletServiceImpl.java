@@ -26,6 +26,7 @@ import com.ewallet.wallet_service.fraud.model.FraudResult;
 import com.ewallet.wallet_service.fraud.service.FraudDetectionService;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -189,7 +190,7 @@ public class WalletServiceImpl implements WalletService {
             tx.setFromWallet(fromWallet);
             tx.setToWallet(toWallet);
             tx.setAmount(amount);
-            tx.setTimestamp(LocalDateTime.now());
+            tx.setTimestamp(Instant.now());
 
             transactionRepository.save(tx);
 

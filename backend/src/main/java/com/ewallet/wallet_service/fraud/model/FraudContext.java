@@ -1,18 +1,38 @@
 package com.ewallet.wallet_service.fraud.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 public class FraudContext {
 
     private Long fromWalletId;
     private Long toWalletId;
     private BigDecimal amount;
-
+    private Long userId;
+    private LocalDateTime transactionTime;
+    
     public FraudContext(Long fromWalletId, Long toWalletId, BigDecimal amount) {
         this.fromWalletId = fromWalletId;
         this.toWalletId = toWalletId;
         this.amount = amount;
     }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public LocalDateTime getTransactionTime() {
+        return transactionTime;
+    }
+
+    public void setTransactionTime(LocalDateTime transactionTime) {
+        this.transactionTime = transactionTime;
+    }
+
 
     public Long getFromWalletId() {
         return fromWalletId;

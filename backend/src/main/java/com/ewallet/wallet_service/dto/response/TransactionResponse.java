@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @AllArgsConstructor
@@ -19,5 +19,5 @@ public class TransactionResponse {
 
     private Long counterpartyWalletId;
 
-    private LocalDateTime timestamp;
+    private Instant timestamp;
 }
