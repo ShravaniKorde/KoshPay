@@ -34,6 +34,7 @@ import com.ewallet.wallet_service.entity.TransactionStatus;
 import com.ewallet.wallet_service.service.TransactionStatusService;
 import com.ewallet.wallet_service.service.util.OtpService;
 import com.ewallet.wallet_service.dto.response.OtpResponse;
+import com.ewallet.wallet_service.exception.InvalidRequestException;
 
 @Service
 @Transactional
@@ -102,6 +103,7 @@ public class WalletServiceImpl implements WalletService {
     // GET MY BALANCE
     // =============================
     @Override
+    @Transactional(readOnly = true)
     public WalletResponse getMyBalance() {
 
         Wallet wallet = getCurrentUserWallet();
@@ -168,8 +170,7 @@ public class WalletServiceImpl implements WalletService {
                 senderOldBal,
                 senderOldBal
         );
-
-        throw new RuntimeException("Transaction blocked due to fraud risk");
+        throw new InvalidRequestException("Transaction blocked due to fraud risk");
         }
 
         // 4. OTP AUTHORIZATION (Challenge Gate)
@@ -237,6 +238,27 @@ public class WalletServiceImpl implements WalletService {
         }
     }
 
+    // =============================
+    // SINGLE PIN UPDATE LOGIC
+    // =============================
+    @Override
+    public void updateTransactionPin(String newPin) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        // Validation: Ensure it's numeric and 4 digits
+        if (newPin == null || !newPin.matches("\\d{4}")) {
+            throw new IllegalArgumentException("PIN must be exactly 4 numeric digits");
+        }
+
+        // Hash the PIN before saving
+        user.setTransactionPin(passwordEncoder.encode(newPin));
+        userRepository.save(user);
+    
+        log.info("Transaction PIN updated successfully for user: {}", email);
+    }
+
      // =============================
      // TRANSACTION HISTORY
      // =============================
@@ -258,23 +280,5 @@ public class WalletServiceImpl implements WalletService {
                     tx.getStatus().name() // HIGHLIGHT: Returns the Enum name
                 );
                 }).toList();
-        }
-
-        @Override
-        public void updateTransactionPin(String newPin) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        // Validation: Ensure it's numeric and 4 digits
-        if (!newPin.matches("\\d{4}")) {
-                throw new IllegalArgumentException("PIN must be exactly 4 digits");
-        }
-
-        // Hash the PIN before saving
-        user.setTransactionPin(passwordEncoder.encode(newPin));
-        userRepository.save(user);
-    
-        log.info("Transaction PIN updated for user: {}", email);
         }
 }

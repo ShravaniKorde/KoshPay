@@ -55,9 +55,10 @@ public class UserServiceImpl implements UserService {
             throw new InvalidRequestException("Email already exists");
         }
 
-        // 2. PIN Validation (New)
-        if (request.getTransactionPin() == null || request.getTransactionPin().length() < 4) {
-            throw new InvalidRequestException("Transaction PIN must be at least 4 digits");
+       // 2. PIN Validation (Exactly 4 numeric digits)
+        if (request.getTransactionPin() == null || !request.getTransactionPin().matches("\\d{4}")) {
+            log.warn("Registration failed: Invalid PIN format for email={}", request.getEmail());
+            throw new InvalidRequestException("Transaction PIN must be exactly 4 numeric digits");
         }
 
         if (request.getInitialBalance()

@@ -52,12 +52,6 @@ public class WalletController {
         );
     }
 
-    @PostMapping("/set-pin")
-    public ResponseEntity<String> setPin(@RequestParam String pin) {
-        walletService.updateTransactionPin(pin); 
-        return ResponseEntity.ok("Transaction PIN set successfully");
-    }
-
     @PostMapping("/update-pin")
     public ResponseEntity<String> updatePin(@RequestParam String pin) {
         walletService.updateTransactionPin(pin);
