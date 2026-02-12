@@ -35,7 +35,9 @@ public class WalletController {
     ) {
         walletService.transfer(
                 request.getToWalletId(),
-                request.getAmount()
+                request.getAmount(),
+                request.getPin(), 
+                request.getOtp()
         );
         return ResponseEntity.ok("Transfer successful");
     }
@@ -48,5 +50,11 @@ public class WalletController {
         return ResponseEntity.ok(
                 walletService.getMyTransactionHistory()
         );
+    }
+
+    @PostMapping("/update-pin")
+    public ResponseEntity<String> updatePin(@RequestParam String pin) {
+        walletService.updateTransactionPin(pin);
+        return ResponseEntity.ok("Transaction PIN has been updated successfully.");
     }
 }

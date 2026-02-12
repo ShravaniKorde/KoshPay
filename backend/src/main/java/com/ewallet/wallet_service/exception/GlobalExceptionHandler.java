@@ -35,35 +35,22 @@ public class GlobalExceptionHandler {
         return buildResponse(ex, HttpStatus.NOT_FOUND, request);
     }
 
-    // =============================
-    // 400 - INVALID REQUEST
-    // =============================
-    @ExceptionHandler(InvalidRequestException.class)
-    public ResponseEntity<ApiErrorResponse> handleBadRequest(
-            InvalidRequestException ex,
-            HttpServletRequest request
-    ) {
-        log.warn(
-            "Invalid request: path={}, message={}",
-            request.getRequestURI(),
-            ex.getMessage()
-        );
-        return buildResponse(ex, HttpStatus.BAD_REQUEST, request);
-    }
+    // =========================================================================
+    // START HIGHLIGHT: OPTIMIZED 400 - BUSINESS EXCEPTIONS (GROUPED)
+    // This handles InvalidRequest, InsufficientBalance, and IllegalArgument (PIN/OTP)
+    // =========================================================================
+    @ExceptionHandler({
+        InvalidRequestException.class,
+        InsufficientBalanceException.class,
+        IllegalArgumentException.class
+    })
+    public ResponseEntity<ApiErrorResponse> handleBusinessExceptions(Exception ex, HttpServletRequest request) {
+        // This log.warn ensures you get a clean 1-liner in your console for PIN/OTP/Balance issues
+        log.warn("Business rule violation: path={}, type={}, message={}",
+                request.getRequestURI(),
+                ex.getClass().getSimpleName(),
+                ex.getMessage());
 
-    // =============================
-    // 400 - INSUFFICIENT BALANCE
-    // =============================
-    @ExceptionHandler(InsufficientBalanceException.class)
-    public ResponseEntity<ApiErrorResponse> handleInsufficientBalance(
-            InsufficientBalanceException ex,
-            HttpServletRequest request
-    ) {
-        log.warn(
-            "Insufficient balance: path={}, message={}",
-            request.getRequestURI(),
-            ex.getMessage()
-        );
         return buildResponse(ex, HttpStatus.BAD_REQUEST, request);
     }
 

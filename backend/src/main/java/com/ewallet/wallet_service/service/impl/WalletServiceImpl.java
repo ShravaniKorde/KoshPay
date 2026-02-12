@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 //fraud engine modules
 import com.ewallet.wallet_service.fraud.model.FraudContext;
@@ -31,6 +32,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import com.ewallet.wallet_service.entity.TransactionStatus;
 import com.ewallet.wallet_service.service.TransactionStatusService;
+import com.ewallet.wallet_service.service.util.OtpService;
+import com.ewallet.wallet_service.dto.response.OtpResponse;
+import com.ewallet.wallet_service.exception.InvalidRequestException;
 
 @Service
 @Transactional
@@ -46,7 +50,9 @@ public class WalletServiceImpl implements WalletService {
     private final AuditLogService auditLogService;
     //fraud engine field
     private final FraudDetectionService fraudDetectionService;
-    private final TransactionStatusService statusService; // HIGHLIGHT: Added Service
+    private final TransactionStatusService statusService; 
+    private final OtpService otpService;
+    private final PasswordEncoder passwordEncoder; 
 
     public WalletServiceImpl(
             WalletRepository walletRepository,
@@ -55,7 +61,9 @@ public class WalletServiceImpl implements WalletService {
             BalanceWebSocketService balanceWebSocketService,
             AuditLogService auditLogService,
             FraudDetectionService fraudDetectionService,
-            TransactionStatusService statusService // HIGHLIGHT: Injected Service
+            TransactionStatusService statusService,
+            OtpService otpService,
+            PasswordEncoder passwordEncoder 
     ) {
         this.walletRepository = walletRepository;
         this.transactionRepository = transactionRepository;
@@ -64,6 +72,8 @@ public class WalletServiceImpl implements WalletService {
         this.auditLogService = auditLogService;
         this.fraudDetectionService = fraudDetectionService;
         this.statusService = statusService;
+        this.otpService = otpService;
+        this.passwordEncoder = passwordEncoder; 
     }
 
     // =============================
@@ -93,6 +103,7 @@ public class WalletServiceImpl implements WalletService {
     // GET MY BALANCE
     // =============================
     @Override
+    @Transactional(readOnly = true)
     public WalletResponse getMyBalance() {
 
         Wallet wallet = getCurrentUserWallet();
@@ -109,9 +120,17 @@ public class WalletServiceImpl implements WalletService {
     // =============================
         @Override
         @Transactional
-        public void transfer(Long toWalletId, BigDecimal amount) {
+        public Object transfer(Long toWalletId, BigDecimal amount, String pin, String otp) {
                 Wallet sender = getCurrentUserWallet();
-                // PREVENT SELF-TRANSFER ===
+                User user = sender.getUser();
+
+        // 1. PIN VERIFICATION
+        if (user.getTransactionPin() == null || !passwordEncoder.matches(pin, user.getTransactionPin())) {
+                log.warn("Invalid PIN attempt for user: {}", user.getEmail());
+                throw new IllegalArgumentException("Invalid Transaction PIN");
+        }
+
+        // 2. PREVENT SELF-TRANSFER ===
         if (sender.getId().equals(toWalletId)) {
                 log.warn("Self-transfer attempt blocked for walletId: {}", sender.getId());
                 throw new IllegalArgumentException("You cannot transfer money to your own wallet.");
@@ -122,7 +141,7 @@ public class WalletServiceImpl implements WalletService {
         BigDecimal senderOldBal = sender.getBalance();
         
         // =============================
-        // FRAUD CHECK (BEFORE MONEY MOVE)
+        // 3. FRAUD CHECK (BEFORE MONEY MOVE)
         // =============================
         FraudContext fraudContext = new FraudContext(
                 sender.getId(),
@@ -151,9 +170,22 @@ public class WalletServiceImpl implements WalletService {
                 senderOldBal,
                 senderOldBal
         );
-
-        throw new RuntimeException("Transaction blocked due to fraud risk");
+        throw new InvalidRequestException("Transaction blocked due to fraud risk");
         }
+
+        // 4. OTP AUTHORIZATION (Challenge Gate)
+        // Only ask for OTP if Risk > 50 OR amount is high
+        if (fraudResult.getRiskScore() > 50 || amount.compareTo(new BigDecimal("1000")) > 0) {
+            if (otp == null || otp.isEmpty()) {
+                String generatedOtp = otpService.generateAndReturnOtp(user); 
+                return new OtpResponse("OTP_REQUIRED", "Please verify using this code", generatedOtp);
+            }
+
+            if (!otpService.validateOtp(user, otp)) {
+                throw new IllegalArgumentException("Invalid or expired OTP");
+            }
+        }
+
         // STEP 1: Create record in INITIATED status
         Transaction tx = new Transaction();
         tx.setFromWallet(sender);
@@ -162,7 +194,7 @@ public class WalletServiceImpl implements WalletService {
         tx.setTimestamp(Instant.now());
         statusService.updateStatus(tx, TransactionStatus.INITIATED);
         
-        log.info(">>> STATUS: INITIATED. Sleeping for 10s...");
+        log.info(">>> STATUS: INITIATED.");
         //     try { Thread.sleep(10000); } catch (InterruptedException e) { } // To check status in DB
 
         try {
@@ -175,7 +207,7 @@ public class WalletServiceImpl implements WalletService {
 
            // HIGHLIGHT: 3. PENDING
             statusService.updateStatus(tx, TransactionStatus.PENDING);
-            log.info(">>> STATUS: PENDING. Sleeping for 5s...");
+            log.info(">>> STATUS: PENDING.");
             // try { Thread.sleep(10000); } catch (InterruptedException e) { } // To check status in DB
 
             // HIGHLIGHT: 4. Execution (Balance Update) // ACID section
@@ -196,12 +228,35 @@ public class WalletServiceImpl implements WalletService {
             balanceWebSocketService.publishBalance(sender.getId(), sender.getBalance());
             balanceWebSocketService.publishBalance(receiver.getId(), receiver.getBalance());
 
+            return "SUCCESS";
+
         } catch (Exception e) {
             // HIGHLIGHT: 6. FAILED (Catch-all for any errors)
             statusService.updateStatus(tx, TransactionStatus.FAILED);
             auditLogService.log(sender.getUser(), "TRANSFER", "FAILURE", senderOldBal, senderOldBal);
             throw e; // Rethrow to trigger rollback of balance changes
         }
+    }
+
+    // =============================
+    // SINGLE PIN UPDATE LOGIC
+    // =============================
+    @Override
+    public void updateTransactionPin(String newPin) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        // Validation: Ensure it's numeric and 4 digits
+        if (newPin == null || !newPin.matches("\\d{4}")) {
+            throw new IllegalArgumentException("PIN must be exactly 4 numeric digits");
+        }
+
+        // Hash the PIN before saving
+        user.setTransactionPin(passwordEncoder.encode(newPin));
+        userRepository.save(user);
+    
+        log.info("Transaction PIN updated successfully for user: {}", email);
     }
 
      // =============================
