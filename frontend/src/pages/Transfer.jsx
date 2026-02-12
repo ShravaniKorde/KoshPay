@@ -3,7 +3,7 @@ import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
 
 export default function Transfer() {
-  const [toUpiId, setToUpiId] = useState(""); // Renamed for clarity
+  const [toUpiId, setToUpiId] = useState(""); 
   const [amount, setAmount] = useState("");
   const [pin, setPin] = useState(""); 
   const [loading, setLoading] = useState(false);
@@ -14,7 +14,6 @@ export default function Transfer() {
 
   const navigate = useNavigate();
 
-  // STEP 1: Initial Transfer Request (Will trigger OTP if > 1000)
   const submit = async (e) => {
     e.preventDefault();
 
@@ -25,16 +24,15 @@ export default function Transfer() {
 
     try {
       setLoading(true);
-
       const res = await api.post("/upi/transfer", {
         toUpiId: toUpiId,
         amount: Number(amount),
         pin: pin,
-        // otp is omitted here on purpose
       });
 
-      // Check if backend returned the OtpResponse object
+      // CHECK FOR OTP REQUIREMENT
       if (res.data && res.data.status === "OTP_REQUIRED") {
+        alert(`🔐 Verification Required! \nYour OTP is: ${res.data.otp}`);
         setShowOtpModal(true);
       } else {
         alert("✅ Transfer successful");
@@ -48,26 +46,25 @@ export default function Transfer() {
     }
   };
 
-  // STEP 2: Verify OTP (Hits the SAME endpoint but includes the OTP)
+  // STEP 2: Verify OTP
   const handleVerifyOtp = async () => {
     try {
       setLoading(true);
-      const res = await api.post("/upi/transfer", {
+      await api.post("/upi/transfer", {
         toUpiId: toUpiId,
         amount: Number(amount),
         pin: pin,
-        otp: otp, // Now sending the OTP collected from the modal
+        otp: otp, 
       });
 
-      // If successful, backend returns "UPI transfer successful" or similar string
       alert("✅ Transfer successful!");
       navigate("/dashboard");
     } catch (err) {
-      alert(err.response?.data?.message || "Invalid OTP or Transaction Failed");
+      alert(err.response?.data?.message || "Invalid OTP");
     } finally {
       setLoading(false);
       setShowOtpModal(false);
-      setOtp(""); // Clear OTP for security
+      setOtp(""); 
     }
   };
 
@@ -112,10 +109,7 @@ export default function Transfer() {
           <button
             type="submit"
             disabled={loading}
-            style={{
-              ...styles.button,
-              opacity: loading ? 0.7 : 1,
-            }}
+            style={{ ...styles.button, opacity: loading ? 0.7 : 1 }}
           >
             {loading ? "Processing..." : "Send Money"}
           </button>
@@ -127,16 +121,18 @@ export default function Transfer() {
           <div style={styles.modal}>
             <h3 style={{ marginBottom: "10px" }}>🔐 OTP Verification</h3>
             <p style={{ fontSize: "0.85rem", color: "#666", marginBottom: "15px" }}>
-              A high-value transfer requires verification. <br/>
-              Enter the code sent to your email.
+              Please enter the 4-digit code shown in the previous alert.
             </p>
+
             <input
               type="text"
               placeholder="Enter OTP"
+              maxLength="4"
               value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              style={{ ...styles.input, textAlign: "center", letterSpacing: "5px" }}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+              style={{ ...styles.input, textAlign: "center", letterSpacing: "5px", fontSize: "1.2rem" }}
             />
+            
             <button 
               onClick={handleVerifyOtp} 
               style={{ ...styles.button, width: "100%", marginTop: "15px" }}
@@ -165,6 +161,17 @@ const styles = {
   label: { fontSize: "0.85rem", fontWeight: "600", color: "#374151" },
   input: { padding: "0.6rem 0.7rem", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "0.9rem" },
   button: { marginTop: "1rem", padding: "0.65rem", borderRadius: "10px", border: "none", background: "linear-gradient(90deg, #2563eb, #1e40af)", color: "#fff", fontSize: "0.95rem", fontWeight: "600", cursor: "pointer" },
-  modalOverlay: { position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 },
-  modal: { background: "#fff", padding: "2rem", borderRadius: "12px", width: "320px", textAlign: "center", boxShadow: "0 10px 25px rgba(0,0,0,0.2)" },
+  modalOverlay: { 
+    position: "fixed", 
+    top: 0, left: 0, right: 0, bottom: 0, 
+    background: "rgba(0,0,0,0.6)", 
+    display: "flex", alignItems: "center", justifyContent: "center", 
+    zIndex: 9999 
+  },
+  modal: { 
+    background: "#fff", 
+    padding: "2rem", borderRadius: "12px", 
+    width: "320px", textAlign: "center", 
+    boxShadow: "0 10px 25px rgba(0,0,0,0.3)" 
+  }
 };
