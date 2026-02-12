@@ -24,6 +24,12 @@ public class UpiTransferController {
         this.upiResolverService = upiResolverService;
     }
 
+     @PostMapping("/update-pin")
+    public ResponseEntity<String> updatePin(@RequestParam String pin) {
+        walletService.updateTransactionPin(pin);
+        return ResponseEntity.ok("Transaction PIN has been updated successfully.");
+    }
+
     @PostMapping("/transfer")
     public ResponseEntity<?> transferViaUpi(
             @Valid @RequestBody UpiTransferRequest request
