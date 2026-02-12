@@ -135,6 +135,12 @@ public class WalletServiceImpl implements WalletService {
                 log.warn("Self-transfer attempt blocked for walletId: {}", sender.getId());
                 throw new IllegalArgumentException("You cannot transfer money to your own wallet.");
         }
+
+        // --- NEW POSITION FOR BALANCE CHECK ---
+    // Check balance BEFORE doing Fraud/OTP checks
+    if (sender.getBalance().compareTo(amount) < 0) {
+        throw new InsufficientBalanceException("Insufficient balance. Current: ₹" + sender.getBalance());
+    }
         Wallet receiver = walletRepository.findById(toWalletId)
                 .orElseThrow(() -> new ResourceNotFoundException("Receiver wallet not found"));
 

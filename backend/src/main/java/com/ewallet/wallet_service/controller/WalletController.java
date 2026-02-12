@@ -29,18 +29,18 @@ public class WalletController {
     // =============================
     // TRANSFER MONEY
     // =============================
-    @PostMapping("/transfer")
-    public ResponseEntity<String> transfer(
-            @Valid @RequestBody TransferRequest request
-    ) {
-        walletService.transfer(
-                request.getToWalletId(),
-                request.getAmount(),
-                request.getPin(), 
-                request.getOtp()
-        );
-        return ResponseEntity.ok("Transfer successful");
-    }
+    // @PostMapping("/transfer")
+    // public ResponseEntity<String> transfer(
+    //         @Valid @RequestBody TransferRequest request
+    // ) {
+    //     walletService.transfer(
+    //             request.getToWalletId(),
+    //             request.getAmount(),
+    //             request.getPin(), 
+    //             request.getOtp()
+    //     );
+    //     return ResponseEntity.ok("Transfer successful");
+    // }
 
     // =============================
     // MY TRANSACTION HISTORY
@@ -52,9 +52,4 @@ public class WalletController {
         );
     }
 
-    @PostMapping("/update-pin")
-    public ResponseEntity<String> updatePin(@RequestParam String pin) {
-        walletService.updateTransactionPin(pin);
-        return ResponseEntity.ok("Transaction PIN has been updated successfully.");
-    }
 }
