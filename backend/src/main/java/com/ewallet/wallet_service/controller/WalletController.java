@@ -29,18 +29,18 @@ public class WalletController {
     // =============================
     // TRANSFER MONEY
     // =============================
-    @PostMapping("/transfer")
-    public ResponseEntity<String> transfer(
-            @Valid @RequestBody TransferRequest request
-    ) {
-        walletService.transfer(
-                request.getToWalletId(),
-                request.getAmount(),
-                request.getPin(), 
-                request.getOtp()
-        );
-        return ResponseEntity.ok("Transfer successful");
-    }
+    // @PostMapping("/transfer")
+    // public ResponseEntity<String> transfer(
+    //         @Valid @RequestBody TransferRequest request
+    // ) {
+    //     walletService.transfer(
+    //             request.getToWalletId(),
+    //             request.getAmount(),
+    //             request.getPin(), 
+    //             request.getOtp()
+    //     );
+    //     return ResponseEntity.ok("Transfer successful");
+    // }
 
     // =============================
     // MY TRANSACTION HISTORY
