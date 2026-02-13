@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import Transfer from "./pages/Transfer";
 import Transactions from "./pages/Transactions";
 import Navbar from "./components/Navbar";
+import Security from "./pages/Security";
 
 export default function App() {
   const { isAuthenticated } = useAuth();
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/transfer" element={<Transfer />} />
           <Route path="/transactions" element={<Transactions />} />
+          <Route path="/security" element={<Security />} /> 
         </Route>
 
         {/* DEFAULT */}

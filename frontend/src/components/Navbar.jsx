@@ -46,6 +46,16 @@ export default function Navbar() {
           >
             Transactions
           </NavLink>
+
+          {/* SECURITY TAB */}
+          <NavLink
+            to="/security"
+            style={({ isActive }) =>
+              isActive ? styles.activeLink : styles.link
+            }
+          >
+            Security
+          </NavLink>
         </nav>
 
         {/* LOGOUT */}
