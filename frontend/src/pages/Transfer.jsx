@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import api from "../api/axios";
-import { useNavigate } from "react-router-dom";
 
 export default function Transfer() {
+  const location = useLocation(); 
   const [toUpiId, setToUpiId] = useState(""); 
   const [amount, setAmount] = useState("");
   const [pin, setPin] = useState(""); 
@@ -11,6 +12,12 @@ export default function Transfer() {
   // OTP States
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [otp, setOtp] = useState("");
+
+  useEffect(() => {
+    if (location.state && location.state.upiId) {
+      setToUpiId(location.state.upiId);
+    }
+  }, [location]); 
 
   const navigate = useNavigate();
 
