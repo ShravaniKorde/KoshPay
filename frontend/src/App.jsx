@@ -16,7 +16,11 @@ import AuditLogs from "./pages/admin/AuditLogs";
 import Analytics from "./pages/admin/Analytics";
 
 import Navbar from "./components/Navbar";
+<<<<<<< HEAD
+import Security from "./pages/Security";
+=======
 import AdminLayout from "./layouts/AdminLayout";
+>>>>>>> 543cf0665217d3428dad2663a791ef9325c84889
 
 export default function App() {
   const { isAuthenticated, isAdmin, loading } = useAuth();
@@ -68,6 +72,7 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/transfer" element={<Transfer />} />
           <Route path="/transactions" element={<Transactions />} />
+          <Route path="/security" element={<Security />} /> 
         </Route>
 
         {/* ================= ADMIN ROUTES ================= */}

@@ -5,9 +5,11 @@ import com.ewallet.wallet_service.dto.response.WalletResponse;
 import com.ewallet.wallet_service.entity.Transaction;
 import com.ewallet.wallet_service.entity.User;
 import com.ewallet.wallet_service.entity.Wallet;
+import com.ewallet.wallet_service.entity.VirtualPaymentAddress;
 import com.ewallet.wallet_service.exception.InsufficientBalanceException;
 import com.ewallet.wallet_service.exception.ResourceNotFoundException;
 import com.ewallet.wallet_service.repository.TransactionRepository;
+import com.ewallet.wallet_service.repository.VirtualPaymentAddressRepository;
 import com.ewallet.wallet_service.repository.UserRepository;
 import com.ewallet.wallet_service.repository.WalletRepository;
 import com.ewallet.wallet_service.service.AuditLogService;
@@ -46,6 +48,8 @@ public class WalletServiceImpl implements WalletService {
     private final WalletRepository walletRepository;
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
+    // 1. Add this repository to your fields
+    private final VirtualPaymentAddressRepository vpaRepository;
     private final BalanceWebSocketService balanceWebSocketService;
     private final AuditLogService auditLogService;
     //fraud engine field
@@ -53,6 +57,7 @@ public class WalletServiceImpl implements WalletService {
     private final TransactionStatusService statusService; 
     private final OtpService otpService;
     private final PasswordEncoder passwordEncoder; 
+    
 
     public WalletServiceImpl(
             WalletRepository walletRepository,
@@ -63,7 +68,8 @@ public class WalletServiceImpl implements WalletService {
             FraudDetectionService fraudDetectionService,
             TransactionStatusService statusService,
             OtpService otpService,
-            PasswordEncoder passwordEncoder 
+            PasswordEncoder passwordEncoder,
+            VirtualPaymentAddressRepository vpaRepository
     ) {
         this.walletRepository = walletRepository;
         this.transactionRepository = transactionRepository;
@@ -74,6 +80,7 @@ public class WalletServiceImpl implements WalletService {
         this.statusService = statusService;
         this.otpService = otpService;
         this.passwordEncoder = passwordEncoder; 
+        this.vpaRepository = vpaRepository;
     }
 
     // =============================
@@ -277,14 +284,32 @@ public class WalletServiceImpl implements WalletService {
 
                 return transactions.stream().map(tx -> {
                 boolean isDebit = tx.getFromWallet().getId().equals(wallet.getId());
+                String fromUpi = vpaRepository.findByUserId(tx.getFromWallet().getUser().getId())
+                        .map(VirtualPaymentAddress::getUpiId)
+                        .orElseGet(() -> formatUpiFromName(tx.getFromWallet().getUser().getName()));
+                
+                String toUpi = vpaRepository.findByUserId(tx.getToWallet().getUser().getId())
+                        .map(VirtualPaymentAddress::getUpiId)
+                        .orElseGet(() -> formatUpiFromName(tx.getToWallet().getUser().getName()));
+                        
                 return new TransactionResponse(
                     tx.getId(),
                     isDebit ? "DEBIT" : "CREDIT",
                     tx.getAmount(),
                     isDebit ? tx.getToWallet().getId() : tx.getFromWallet().getId(),
+                    
                     tx.getTimestamp(),
-                    tx.getStatus().name() // HIGHLIGHT: Returns the Enum name
+                    tx.getStatus().name(), // HIGHLIGHT: Returns the Enum name
+                    fromUpi, 
+                    toUpi    
                 );
                 }).toList();
+        }
+        
+        private String formatUpiFromName(String name) {
+                if (name == null || name.isEmpty()) {
+                return "user@koshpay";
+                }
+        return name.toLowerCase().replaceAll("\\s+", "") + "@koshpay";
         }
 }

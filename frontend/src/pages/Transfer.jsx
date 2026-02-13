@@ -71,7 +71,7 @@ export default function Transfer() {
   return (
     <div style={styles.wrapper}>
       <div style={styles.card}>
-        <h2 style={styles.title}>💸 UPI Transfer</h2>
+        <h2 style={styles.title}>💸 Wallet Transfer</h2>
         <p style={styles.subtitle}>Send money securely using UPI ID</p>
 
         <form onSubmit={submit} style={styles.form}>
