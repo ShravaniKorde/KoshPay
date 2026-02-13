@@ -47,6 +47,13 @@ export default function Navbar() {
             Transactions
           </NavLink>
 
+          <NavLink
+            to="/contacts"
+            style={({ isActive }) => isActive ? styles.activeLink : styles.link}
+          >
+            Contacts
+          </NavLink>
+
           {/* SECURITY TAB */}
           <NavLink
             to="/security"
