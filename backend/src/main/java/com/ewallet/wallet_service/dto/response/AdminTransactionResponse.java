@@ -12,12 +12,12 @@ public class AdminTransactionResponse {
 
     private Long transactionId;
 
-    private Long fromWalletId;
-    private Long toWalletId;
+    private String fromUpiId;
+    private String toUpiId;
 
     private BigDecimal amount;
 
-    private String status;   // INITIATED, PENDING, SUCCESS, FAILED
+    private String status;
 
     private Instant timestamp;
 }

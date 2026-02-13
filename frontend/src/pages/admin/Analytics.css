@@ -1,0 +1,96 @@
+.analytics {
+  padding: 40px;
+  min-height: 100vh;
+  background: linear-gradient(145deg, #0f172a, #111827);
+  color: #f1f5f9;
+}
+
+.analytics h1 {
+  margin-bottom: 30px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.card {
+  background: rgba(255,255,255,0.05);
+  padding: 25px;
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+}
+
+.card h3 {
+  font-size: 14px;
+  opacity: 0.7;
+  margin-bottom: 10px;
+}
+
+.card p {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.distribution {
+  margin-top: 20px;
+}
+
+.distribution h2 {
+  margin-bottom: 20px;
+}
+
+.bar-group {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.bar-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.bar {
+  height: 10px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #6366f1);
+  border-radius: 999px;
+  transition: width 0.6s ease;
+}
+
+.chart-container {
+  background: rgba(255,255,255,0.05);
+  padding: 30px;
+  border-radius: 18px;
+  margin-bottom: 40px;
+  backdrop-filter: blur(14px);
+  transition: 0.3s;
+}
+
+.chart-container:hover {
+  box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+}
+
