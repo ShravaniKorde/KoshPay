@@ -7,6 +7,7 @@ export default function Register() {
     name: "",
     email: "",
     password: "",
+    transactionPin: "",
     initialBalance: 1000,
   });
 
@@ -15,9 +16,14 @@ export default function Register() {
   const submit = async (e) => {
     e.preventDefault();
 
-    // ✅ Frontend validation
     if (form.initialBalance < 1000) {
       alert("Minimum initial balance is ₹1000");
+      return;
+    }
+    
+    // Validate PIN length before sending to backend
+    if (form.transactionPin.length !== 4) {
+      alert("Transaction PIN must be exactly 4 digits");
       return;
     }
 
@@ -37,43 +43,48 @@ export default function Register() {
       </h2>
 
       <form onSubmit={submit} className="card">
-        {/* NAME */}
         <label>Full Name</label>
         <input
           type="text"
           placeholder="John Doe"
           required
           value={form.name}
-          onChange={(e) =>
-            setForm({ ...form, name: e.target.value })
-          }
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
         />
 
-        {/* EMAIL */}
         <label>Email</label>
         <input
           type="email"
           placeholder="john@email.com"
           required
           value={form.email}
-          onChange={(e) =>
-            setForm({ ...form, email: e.target.value })
-          }
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
         />
 
-        {/* PASSWORD */}
         <label>Password</label>
         <input
           type="password"
           placeholder="********"
           required
           value={form.password}
-          onChange={(e) =>
-            setForm({ ...form, password: e.target.value })
-          }
+          onChange={(e) => setForm({ ...form, password: e.target.value })}
         />
 
-        {/* INITIAL BALANCE */}
+        <label>Transaction PIN (4 Digits)</label>
+        <input
+          type="password"
+          placeholder="1234"
+          maxLength="4"
+          required
+          value={form.transactionPin}
+          onChange={(e) =>
+            setForm({ ...form, transactionPin: e.target.value.replace(/\D/g, '') })
+          }
+        />
+        <small style={{ color: "#666", display: "block", marginBottom: "1rem" }}>
+          Used for authorizing payments.
+        </small>
+
         <label>Initial Balance (₹)</label>
         <input
           type="number"
@@ -98,8 +109,7 @@ export default function Register() {
       </form>
 
       <p style={{ textAlign: "center", marginTop: "1rem" }}>
-        Already have an account?{" "}
-        <Link to="/login">Login</Link>
+        Already have an account? <Link to="/login">Login</Link>
       </p>
     </div>
   );

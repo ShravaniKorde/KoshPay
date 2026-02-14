@@ -15,4 +15,7 @@ public class TransferRequest {
     @NotNull
     @Positive
     private BigDecimal amount;
+
+    private String pin; // The user types this in
+    private String otp; // The user types this in after receiving it
 }

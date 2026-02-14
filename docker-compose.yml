@@ -29,6 +29,8 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/ewallet
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
+      - ADMIN_EMAIL=admin@koshpay.com
+      - ADMIN_PASSWORD=StrongAdminPass123
 
   frontend:
     build: ./frontend

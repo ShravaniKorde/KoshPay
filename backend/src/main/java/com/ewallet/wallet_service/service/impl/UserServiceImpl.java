@@ -41,6 +41,16 @@ public class UserServiceImpl implements UserService {
     private final AuditLogService auditLogService;
 
     // =============================
+    // ADMIN CREDENTIALS (FROM ENV)
+    // =============================
+    private final String adminEmail =
+            System.getenv("ADMIN_EMAIL");
+
+    private final String adminPasswordHash =
+            System.getenv("ADMIN_PASSWORD_HASH");
+
+
+    // =============================
     // CREATE USER + WALLET + UPI ID
     // =============================
     @Override
@@ -50,41 +60,41 @@ public class UserServiceImpl implements UserService {
         log.info("User registration attempt for email={}", request.getEmail());
 
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            log.warn("Registration failed: Email already exists [{}]",
-                    request.getEmail());
             throw new InvalidRequestException("Email already exists");
+        }
+
+        if (request.getTransactionPin() == null ||
+                !request.getTransactionPin().matches("\\d{4}")) {
+            throw new InvalidRequestException(
+                    "Transaction PIN must be exactly 4 numeric digits"
+            );
         }
 
         if (request.getInitialBalance()
                 .compareTo(MIN_INITIAL_BALANCE) < 0) {
-
-            log.warn(
-                "Registration failed for email={} due to low initial balance: {}",
-                request.getEmail(),
-                request.getInitialBalance()
-            );
-
             throw new InvalidRequestException(
                     "Minimum initial balance must be ₹" + MIN_INITIAL_BALANCE
             );
         }
 
-        // -------- ORIGINAL USER CREATION --------
+        // -------- USER --------
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setTransactionPin(
+                passwordEncoder.encode(request.getTransactionPin())
+        );
 
         userRepository.save(user);
 
-        // -------- ORIGINAL WALLET CREATION --------
+        // -------- WALLET --------
         Wallet wallet = new Wallet();
         wallet.setUser(user);
         wallet.setBalance(request.getInitialBalance());
-
         walletRepository.save(wallet);
 
-        // -------- NEW: UPI ID CREATION (EXTENSION ONLY) --------
+        // -------- UPI --------
         String base = UpiIdGenerator.generateBase(user.getName());
         int suffix = 0;
         String upiId;
@@ -96,45 +106,59 @@ public class UserServiceImpl implements UserService {
         VirtualPaymentAddress vpa = new VirtualPaymentAddress();
         vpa.setUpiId(upiId);
         vpa.setUser(user);
-
         vpaRepository.save(vpa);
 
-        log.info(
-            "User created successfully. userId={}, walletBalance={}, upiId={}",
-            user.getId(),
-            wallet.getBalance(),
-            upiId
-        );
+        log.info("User created successfully: {}", user.getEmail());
     }
 
+
     // =============================
-    // LOGIN (UNCHANGED)
+    // LOGIN (USER + ADMIN)
     // =============================
     @Override
     public AuthResponse login(LoginRequest request) {
 
         log.info("Login attempt for email={}", request.getEmail());
 
+        // =============================
+        // ADMIN LOGIN (FIRST CHECK)
+        // =============================
+        if (adminEmail != null &&
+                request.getEmail().equals(adminEmail)) {
+
+            if (!passwordEncoder.matches(
+                    request.getPassword(),
+                    adminPasswordHash)) {
+
+                throw new InvalidRequestException(
+                        "Invalid admin credentials"
+                );
+            }
+
+            log.info("Admin login successful");
+
+            String token = jwtUtil.generateToken(
+                    adminEmail,
+                    "ROLE_ADMIN"
+            );
+
+            return new AuthResponse(token);
+        }
+
+
+        // =============================
+        // NORMAL USER LOGIN
+        // =============================
         User user = userRepository
                 .findByEmail(request.getEmail())
                 .orElse(null);
 
-        try {
-            if (user == null) {
-                log.warn("Login failed: Invalid email [{}]",
-                        request.getEmail());
-                throw new InvalidRequestException(
-                        "Invalid email or password"
-                );
-            }
+        if (user == null ||
+                !passwordEncoder.matches(
+                        request.getPassword(),
+                        user.getPassword())) {
 
-            if (!passwordEncoder.matches(
-                    request.getPassword(),
-                    user.getPassword())) {
-
-                log.warn("Login failed: Wrong password for userId={}",
-                        user.getId());
-
+            if (user != null) {
                 auditLogService.log(
                         user,
                         "LOGIN",
@@ -142,46 +166,28 @@ public class UserServiceImpl implements UserService {
                         null,
                         null
                 );
-
-                throw new InvalidRequestException(
-                        "Invalid email or password"
-                );
             }
 
-            auditLogService.log(
-                    user,
-                    "LOGIN",
-                    "SUCCESS",
-                    null,
-                    null
+            throw new InvalidRequestException(
+                    "Invalid email or password"
             );
-
-            log.info("Login successful for userId={}", user.getId());
-
-            String token = jwtUtil.generateToken(user.getEmail());
-            return new AuthResponse(token);
-
-        } catch (Exception e) {
-
-            if (user != null &&
-                !(e instanceof InvalidRequestException)) {
-
-                log.error(
-                    "Unexpected login error for userId={}",
-                    user.getId(),
-                    e
-                );
-
-                auditLogService.log(
-                        user,
-                        "LOGIN",
-                        "FAILURE",
-                        null,
-                        null
-                );
-            }
-
-            throw e;
         }
+
+        auditLogService.log(
+                user,
+                "LOGIN",
+                "SUCCESS",
+                null,
+                null
+        );
+
+        log.info("User login successful: {}", user.getEmail());
+
+        String token = jwtUtil.generateToken(
+                user.getEmail(),
+                "ROLE_USER"
+        );
+
+        return new AuthResponse(token);
     }
 }

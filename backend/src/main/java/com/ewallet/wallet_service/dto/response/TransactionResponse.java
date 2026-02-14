@@ -1,6 +1,7 @@
 package com.ewallet.wallet_service.dto.response;
 
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -8,6 +9,7 @@ import java.time.Instant;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class TransactionResponse {
 
     private Long transactionId;
@@ -21,5 +23,8 @@ public class TransactionResponse {
 
     private Instant timestamp;
 
-    private String status; // New field
+    private String status; 
+
+    private String fromUpi;
+    private String toUpi;
 }

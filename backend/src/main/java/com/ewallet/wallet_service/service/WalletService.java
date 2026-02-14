@@ -10,7 +10,9 @@ public interface WalletService {
 
     WalletResponse getMyBalance();
 
-    void transfer(Long toWalletId, BigDecimal amount);
+    Object transfer(Long toWalletId, BigDecimal amount, String pin, String otp);
 
     List<TransactionResponse> getMyTransactionHistory();
+
+    void updateTransactionPin(String newPin);
 }

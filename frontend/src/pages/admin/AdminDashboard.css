@@ -1,0 +1,150 @@
+/* ============================= */
+/* Page Fade In */
+/* ============================= */
+
+.fade-in {
+  animation: fadeIn 0.8s ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================= */
+/* Layout */
+/* ============================= */
+
+.admin-dashboard {
+  padding: 40px;
+  min-height: 100vh;
+  background: linear-gradient(145deg, #0f172a, #111827);
+  color: #f1f5f9;
+}
+
+.admin-title {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.admin-subtitle {
+  opacity: 0.7;
+  margin-bottom: 30px;
+}
+
+.admin-section-title {
+  margin: 40px 0 20px;
+}
+
+/* ============================= */
+/* Card Grid */
+/* ============================= */
+
+.admin-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.admin-card-grid.small {
+  margin-top: 10px;
+}
+
+/* ============================= */
+/* Cards */
+/* ============================= */
+
+.admin-card {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 25px;
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Card Entrance Animation */
+.card-animate {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: slideUp 0.6s ease forwards;
+}
+
+@keyframes slideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hover Glow */
+.admin-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+}
+
+/* Number Pop Effect */
+.value-pop {
+  font-size: 26px;
+  font-weight: 700;
+  animation: pop 0.6s ease;
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ============================= */
+/* Color Accent Borders */
+/* ============================= */
+
+.blue {
+  border-left: 4px solid #3b82f6;
+}
+
+.green {
+  border-left: 4px solid #22c55e;
+}
+
+.red {
+  border-left: 4px solid #ef4444;
+}
+
+.purple {
+  border-left: 4px solid #8b5cf6;
+}
+
+.orange {
+  border-left: 4px solid #f97316;
+}
+
+.yellow {
+  border-left: 4px solid #eab308;
+}
+
+/* ============================= */
+/* Loading */
+/* ============================= */
+
+.admin-loading {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+}

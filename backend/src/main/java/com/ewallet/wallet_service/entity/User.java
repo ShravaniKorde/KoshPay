@@ -1,6 +1,8 @@
 package com.ewallet.wallet_service.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,4 +32,9 @@ public class User {
     // Stored as BCrypt hash
     @Column(nullable = false)
     private String password;
+
+    private String transactionPin; // Hashed (4 or 6 digits)
+    private String currentOtp;     
+    private LocalDateTime otpExpiry;
+
 }

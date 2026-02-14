@@ -4,7 +4,7 @@ import java.util.Locale;
 
 public final class UpiIdGenerator {
 
-    private static final String PLATFORM = "kospay";
+    private static final String PLATFORM = "koshpay";
 
     private UpiIdGenerator() {}
 
