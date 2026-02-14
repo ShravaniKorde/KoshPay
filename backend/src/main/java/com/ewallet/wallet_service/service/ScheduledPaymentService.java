@@ -8,6 +8,7 @@ import com.ewallet.wallet_service.repository.ScheduledPaymentRepository;
 import com.ewallet.wallet_service.repository.UserRepository;
 import com.ewallet.wallet_service.repository.VirtualPaymentAddressRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,33 @@ public class ScheduledPaymentService {
     private final ScheduledPaymentRepository scheduledPaymentRepository;
     private final UserRepository userRepository;
     private final VirtualPaymentAddressRepository vpaRepository;
+
+    @Transactional
+    public ScheduledPayment updateSchedule(
+            Long id,
+            String email,
+            BigDecimal amount,
+            Instant scheduledAt
+    ) {
+
+        ScheduledPayment payment = scheduledPaymentRepository
+                .findById(id)
+                .orElseThrow(() -> new RuntimeException("Schedule not found"));
+
+        if (!payment.getSender().getEmail().equals(email)) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        if (payment.isExecuted()) {
+            throw new RuntimeException("Cannot edit executed payment");
+        }
+
+        payment.setAmount(amount);
+        payment.setScheduledAt(scheduledAt);
+
+        return scheduledPaymentRepository.save(payment);
+    }
+
 
     public ScheduledPayment createSchedule(
             String senderEmail,
@@ -75,4 +103,8 @@ public class ScheduledPaymentService {
         payment.setFailureReason("Cancelled by user");
         scheduledPaymentRepository.save(payment);
     }
+
+    
+
+    
 }

@@ -9,6 +9,9 @@ import Dashboard from "./pages/Dashboard";
 import Transfer from "./pages/Transfer";
 import Transactions from "./pages/Transactions";
 import Contacts from "./pages/Contacts";
+import MyQR from "./pages/MyQR";
+import ScanQR from "./pages/ScanQR";
+import ScheduledPayments from "./pages/ScheduledPayments";
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -72,6 +75,10 @@ export default function App() {
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/contacts" element={<Contacts />} /> 
           <Route path="/security" element={<Security />} /> 
+          <Route path="/my-qr" element={<MyQR />} />
+          <Route path="/scan-qr" element={<ScanQR />} />
+          <Route path="/scheduled-payments" element={<ScheduledPayments />} />
+
         </Route>
 
         {/* ================= ADMIN ROUTES ================= */}

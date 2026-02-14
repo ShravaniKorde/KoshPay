@@ -61,27 +61,23 @@ export default function Analytics() {
       <h1>Platform Analytics</h1>
 
       {/* ================= SUMMARY CARDS ================= */}
-      <div className="cards">
-        <div className="card">
-          <h3>Total Transactions</h3>
-          <p>{summary.totalTransactions}</p>
+        <div className="cards">
+          <div className="card">
+            <h3>Total Transactions</h3>
+            <p>{summary.totalTransactions}</p>
+          </div>
+
+          <div className="card">
+            <h3>Successful Volume</h3>
+            <p>₹ {summary.totalVolume}</p>
+          </div>
+
+          <div className="card">
+            <h3>Success Rate</h3>
+            <p>{successRate}%</p>
+          </div>
         </div>
 
-        <div className="card">
-          <h3>Successful Volume</h3>
-          <p>₹ {summary.totalVolume}</p>
-        </div>
-
-        <div className="card">
-          <h3>Success Rate</h3>
-          <p>{successRate}%</p>
-        </div>
-
-        <div className="card">
-          <h3>Fraud Blocked</h3>
-          <p>{summary.fraudBlocked}</p>
-        </div>
-      </div>
 
       {/* ================= PIE CHART ================= */}
       <div className="chart-container">

@@ -15,63 +15,51 @@ export default function Navbar() {
       <div style={styles.container}>
         {/* LOGO */}
         <div style={styles.logo}>
-          💳 <span>E-Wallet</span>
+          💳 <span>KoshPay</span>
         </div>
 
         {/* MENU */}
         <nav style={styles.menu}>
-          <NavLink
-            to="/dashboard"
-            style={({ isActive }) =>
-              isActive ? styles.activeLink : styles.link
-            }
-          >
+          <NavLink to="/dashboard" style={navStyle}>
             Dashboard
           </NavLink>
 
-          <NavLink
-            to="/transfer"
-            style={({ isActive }) =>
-              isActive ? styles.activeLink : styles.link
-            }
-          >
+          <NavLink to="/transfer" style={navStyle}>
             Transfer
           </NavLink>
 
-          <NavLink
-            to="/transactions"
-            style={({ isActive }) =>
-              isActive ? styles.activeLink : styles.link
-            }
-          >
+          <NavLink to="/transactions" style={navStyle}>
             Transactions
           </NavLink>
 
-          <NavLink
-            to="/contacts"
-            style={({ isActive }) => isActive ? styles.activeLink : styles.link}
-          >
+          <NavLink to="/contacts" style={navStyle}>
             Contacts
           </NavLink>
 
-          {/* SECURITY TAB */}
+          <NavLink to="/my-qr" style={navStyle}>
+            My QR
+          </NavLink>
+
+          <NavLink to="/scan-qr" style={navStyle}>
+            Scan QR
+          </NavLink>
+
           <NavLink
-            to="/security"
+            to="/scheduled-payments"
             style={({ isActive }) =>
               isActive ? styles.activeLink : styles.link
             }
           >
+            Schedule
+          </NavLink>
+
+          <NavLink to="/security" style={navStyle}>
             Security
           </NavLink>
         </nav>
 
         {/* LOGOUT */}
-        <button
-          onClick={handleLogout}
-          style={styles.logoutBtn}
-          onMouseOver={(e) => (e.target.style.opacity = "0.9")}
-          onMouseOut={(e) => (e.target.style.opacity = "1")}
-        >
+        <button onClick={handleLogout} style={styles.logoutBtn}>
           Logout
         </button>
       </div>
@@ -79,7 +67,11 @@ export default function Navbar() {
   );
 }
 
+const navStyle = ({ isActive }) =>
+  isActive ? styles.activeLink : styles.link;
+
 /* ===================== STYLES ===================== */
+
 const styles = {
   header: {
     background: "linear-gradient(90deg, #2563eb, #1e40af)",
@@ -88,6 +80,7 @@ const styles = {
     top: 0,
     zIndex: 100,
   },
+
   container: {
     maxWidth: "1200px",
     margin: "0 auto",
@@ -97,6 +90,7 @@ const styles = {
     justifyContent: "space-between",
     color: "#fff",
   },
+
   logo: {
     fontSize: "1.45rem",
     fontWeight: "700",
@@ -105,6 +99,7 @@ const styles = {
     gap: "0.5rem",
     letterSpacing: "0.5px",
   },
+
   menu: {
     background: "rgba(255,255,255,0.15)",
     borderRadius: "999px",
@@ -112,6 +107,7 @@ const styles = {
     display: "flex",
     gap: "0.4rem",
   },
+
   link: {
     color: "#e0e7ff",
     textDecoration: "none",
@@ -121,6 +117,7 @@ const styles = {
     fontWeight: "500",
     transition: "all 0.25s ease",
   },
+
   activeLink: {
     background: "#ffffff",
     color: "#1e3a8a",
@@ -130,6 +127,7 @@ const styles = {
     fontSize: "0.9rem",
     fontWeight: "600",
   },
+
   logoutBtn: {
     background: "#ef4444",
     color: "#fff",
