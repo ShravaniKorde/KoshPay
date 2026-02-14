@@ -67,6 +67,24 @@ public class ScheduledPaymentController {
         return ResponseEntity.ok(responses);
     }
 
+    @PutMapping("/{id}")
+        public ResponseEntity<?> updateSchedule(
+                @PathVariable Long id,
+                @RequestBody SchedulePaymentRequest request,
+                Authentication authentication
+        ) {
+        ScheduledPayment updated =
+                scheduledPaymentService.updateSchedule(
+                        id,
+                        authentication.getName(),
+                        request.getAmount(),
+                        request.getScheduledAt()
+                );
+
+        return ResponseEntity.ok(ScheduledPaymentResponse.from(updated));
+        }
+
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> cancelSchedule(
             @PathVariable Long id,

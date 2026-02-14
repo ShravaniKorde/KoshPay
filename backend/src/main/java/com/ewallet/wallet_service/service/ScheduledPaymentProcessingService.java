@@ -27,96 +27,87 @@ public class ScheduledPaymentProcessingService {
     private final TransactionStatusService statusService;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void executeSinglePayment(ScheduledPayment payment) {
+public void executeSinglePayment(ScheduledPayment payment) {
 
-        Transaction tx = null;
+    Transaction tx = null;
 
-        try {
+    try {
 
-            // 🔹 Fetch wallets
-            Wallet senderWallet = walletRepository
-                    .findByUserId(payment.getSender().getId())
-                    .orElseThrow(() -> new RuntimeException("Sender wallet not found"));
+        Wallet senderWallet = walletRepository
+                .findByUserId(payment.getSender().getId())
+                .orElseThrow(() -> new RuntimeException("Sender wallet not found"));
 
-            Wallet receiverWallet = walletRepository
-                    .findByUserId(payment.getReceiver().getUser().getId())
-                    .orElseThrow(() -> new RuntimeException("Receiver wallet not found"));
+        Wallet receiverWallet = walletRepository
+                .findByUserId(payment.getReceiver().getUser().getId())
+                .orElseThrow(() -> new RuntimeException("Receiver wallet not found"));
 
-            BigDecimal amount = payment.getAmount();
-            BigDecimal senderOldBalance = senderWallet.getBalance();
+        BigDecimal amount = payment.getAmount();
+        BigDecimal senderOldBalance = senderWallet.getBalance();
 
-            // 🔹 Create transaction record
-            tx = new Transaction();
-            tx.setFromWallet(senderWallet);
-            tx.setToWallet(receiverWallet);
-            tx.setAmount(amount);
-            tx.setTimestamp(Instant.now());
+        tx = new Transaction();
+        tx.setFromWallet(senderWallet);
+        tx.setToWallet(receiverWallet);
+        tx.setAmount(amount);
+        tx.setTimestamp(Instant.now());
 
-            statusService.updateStatus(tx, TransactionStatus.INITIATED);
+        // 🔹 INITIATED
+        statusService.updateStatus(tx, TransactionStatus.INITIATED);
+        auditLogService.log(senderWallet.getUser(), "SCHEDULED_TRANSFER", "INITIATED",
+                senderOldBalance, senderOldBalance);
 
-            // 🔹 Validation
-            if (senderWallet.getId().equals(receiverWallet.getId())) {
-                statusService.updateStatus(tx, TransactionStatus.FAILED);
-                throw new IllegalArgumentException("Cannot transfer to same wallet");
-            }
-
-            if (senderWallet.getBalance().compareTo(amount) < 0) {
-                statusService.updateStatus(tx, TransactionStatus.FAILED);
-                throw new InsufficientBalanceException("Insufficient balance");
-            }
-
-            // 🔹 Pending state
-            statusService.updateStatus(tx, TransactionStatus.PENDING);
-
-            // 🔹 Perform balance update
-            senderWallet.setBalance(senderWallet.getBalance().subtract(amount));
-            receiverWallet.setBalance(receiverWallet.getBalance().add(amount));
-
-            walletRepository.save(senderWallet);
-            walletRepository.save(receiverWallet);
-
-            // 🔹 Success
-            statusService.updateStatus(tx, TransactionStatus.SUCCESS);
-
-            // 🔹 Audit Log
-            auditLogService.log(
-                    senderWallet.getUser(),
-                    "SCHEDULED_TRANSFER",
-                    "SUCCESS",
-                    senderOldBalance,
-                    senderWallet.getBalance()
-            );
-
-            // 🔹 WebSocket updates
-            balanceWebSocketService.publishBalance(
-                    senderWallet.getId(),
-                    senderWallet.getBalance()
-            );
-
-            balanceWebSocketService.publishBalance(
-                    receiverWallet.getId(),
-                    receiverWallet.getBalance()
-            );
-
-            // 🔹 Mark scheduled payment success
-            payment.setExecuted(true);
-            payment.setStatus(TransactionStatus.SUCCESS);
-            payment.setExecutedAt(Instant.now());
-
-            log.info("Scheduled payment executed successfully: {}", payment.getId());
-
-        } catch (Exception e) {
-
-            if (tx != null) {
-                statusService.updateStatus(tx, TransactionStatus.FAILED);
-            }
-
-            payment.setStatus(TransactionStatus.FAILED);
-            payment.setFailureReason(e.getMessage());
-
-            log.error("Scheduled payment failed: {}", payment.getId(), e);
+        // 🔹 Validation
+        if (senderWallet.getId().equals(receiverWallet.getId())) {
+            statusService.updateStatus(tx, TransactionStatus.FAILED);
+            auditLogService.log(senderWallet.getUser(), "SCHEDULED_TRANSFER", "FAILED",
+                    senderOldBalance, senderOldBalance);
+            throw new IllegalArgumentException("Cannot transfer to same wallet");
         }
 
-        scheduledPaymentRepository.save(payment);
+        if (senderWallet.getBalance().compareTo(amount) < 0) {
+            statusService.updateStatus(tx, TransactionStatus.FAILED);
+            auditLogService.log(senderWallet.getUser(), "SCHEDULED_TRANSFER", "FAILED",
+                    senderOldBalance, senderOldBalance);
+            throw new InsufficientBalanceException("Insufficient balance");
+        }
+
+        // 🔹 PENDING
+        statusService.updateStatus(tx, TransactionStatus.PENDING);
+        auditLogService.log(senderWallet.getUser(), "SCHEDULED_TRANSFER", "PENDING",
+                senderOldBalance, senderOldBalance);
+
+        // 🔹 Balance Update
+        senderWallet.setBalance(senderWallet.getBalance().subtract(amount));
+        receiverWallet.setBalance(receiverWallet.getBalance().add(amount));
+
+        walletRepository.save(senderWallet);
+        walletRepository.save(receiverWallet);
+
+        // 🔹 SUCCESS
+        statusService.updateStatus(tx, TransactionStatus.SUCCESS);
+        auditLogService.log(senderWallet.getUser(), "SCHEDULED_TRANSFER", "SUCCESS",
+                senderOldBalance, senderWallet.getBalance());
+
+        balanceWebSocketService.publishBalance(senderWallet.getId(), senderWallet.getBalance());
+        balanceWebSocketService.publishBalance(receiverWallet.getId(), receiverWallet.getBalance());
+
+        payment.setExecuted(true);
+        payment.setStatus(TransactionStatus.SUCCESS);
+        payment.setExecutedAt(Instant.now());
+
+    } catch (Exception e) {
+
+        if (tx != null) {
+            statusService.updateStatus(tx, TransactionStatus.FAILED);
+        }
+
+        auditLogService.log(payment.getSender(), "SCHEDULED_TRANSFER", "FAILED",
+                null, null);
+
+        payment.setStatus(TransactionStatus.FAILED);
+        payment.setFailureReason(e.getMessage());
     }
+
+    scheduledPaymentRepository.save(payment);
+}
+
 }
