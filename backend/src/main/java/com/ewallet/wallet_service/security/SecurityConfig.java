@@ -17,22 +17,28 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-            // 🔥 Enable CORS (VERY IMPORTANT)
             .cors(cors -> {})
-
             .csrf(csrf -> csrf.disable())
             .formLogin(form -> form.disable())
             .httpBasic(basic -> basic.disable())
 
             .authorizeHttpRequests(auth -> auth
+
+                // PUBLIC ENDPOINTS
                 .requestMatchers(
-                        "/ws/**",                 // WebSocket
+                        "/ws/**",
                         "/api/auth/**",
                         "/api/setup/**",
                         "/swagger-ui/**",
                         "/swagger-ui.html",
                         "/v3/api-docs/**"
                 ).permitAll()
+
+                // ADMIN ONLY
+                .requestMatchers("/api/admin/**")
+                .hasRole("ADMIN")
+
+                // ALL OTHER API → AUTHENTICATED USERS
                 .anyRequest().authenticated()
             )
 

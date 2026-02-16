@@ -31,4 +31,6 @@ public class UserCreateRequest {
     @NotNull(message = "Initial balance is required")
     @Positive(message = "Initial balance must be positive")
     private BigDecimal initialBalance;
+
+    private String transactionPin; 
 }

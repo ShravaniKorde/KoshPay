@@ -7,6 +7,7 @@ import com.ewallet.wallet_service.service.WalletService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.ewallet.wallet_service.dto.response.OtpResponse;
 
 @RestController
 @RequestMapping("/api/upi")
@@ -23,6 +24,12 @@ public class UpiTransferController {
         this.upiResolverService = upiResolverService;
     }
 
+     @PostMapping("/update-pin")
+    public ResponseEntity<String> updatePin(@RequestParam String pin) {
+        walletService.updateTransactionPin(pin);
+        return ResponseEntity.ok("Transaction PIN has been updated successfully.");
+    }
+
     @PostMapping("/transfer")
     public ResponseEntity<?> transferViaUpi(
             @Valid @RequestBody UpiTransferRequest request
@@ -31,11 +38,18 @@ public class UpiTransferController {
         Wallet receiverWallet =
                 upiResolverService.resolveToWallet(request.getToUpiId());
 
-        // 🔑 Reuse EXISTING transfer logic
-        walletService.transfer(
-                receiverWallet.getId(),
-                request.getAmount()
-        );
+    Object result = walletService.transfer(
+            receiverWallet.getId(),
+            request.getAmount(),
+            request.getPin(),
+            request.getOtp()
+    );
+
+        // If the service returned an OtpResponse, send it to frontend
+        if (result instanceof OtpResponse) {
+        // This sends back the JSON with the OTP code
+        return ResponseEntity.ok(result); 
+        }
 
         return ResponseEntity.ok("UPI transfer successful");
     }

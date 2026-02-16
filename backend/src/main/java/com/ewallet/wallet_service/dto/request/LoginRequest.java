@@ -13,4 +13,7 @@ public class LoginRequest {
 
     @NotBlank
     private String password;
+
+    // NEW
+    private boolean adminLogin;
 }

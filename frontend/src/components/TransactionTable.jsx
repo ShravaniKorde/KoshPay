@@ -1,77 +1,69 @@
-export default function TransactionTable({ txs }) {
+import React from 'react';
+
+const TransactionTable = ({ txs }) => {
   if (!txs || txs.length === 0) {
-    return <p style={styles.empty}>No transactions found</p>;
+    return <div style={styles.emptyCard}>No transactions found</div>;
   }
 
   return (
     <div style={styles.card}>
       <table style={styles.table}>
         <thead>
-          <tr>
-            <th>#</th>
-            <th>Type</th>
-            <th>From</th>
-            <th>To</th>
-            <th style={{ textAlign: "right" }}>Amount</th>
-            <th>Date</th>
+          <tr style={styles.headerRow}>
+            <th style={styles.th}>Type</th>
+            <th style={styles.th}>From</th>
+            <th style={styles.th}>To</th>
+            <th style={styles.th}>Amount</th>
+            <th style={styles.th}>Status</th>
+            <th style={styles.th}>Date & Time</th>
           </tr>
         </thead>
-
         <tbody>
-          {txs.map((tx, i) => {
-            const isDebit = tx.type === "DEBIT";
-
+          {txs.map((tx) => {
+            const isDebit = tx.type === 'DEBIT';
             return (
-              <tr key={tx.transactionId}>
-                <td>{i + 1}</td>
-
-                {/* TYPE */}
+              <tr key={tx.transactionId} style={styles.row}>
+                {/* 1. TYPE BADGE */}
                 <td>
-                  <span
-                    style={{
-                      ...styles.badge,
-                      background: isDebit ? "#fee2e2" : "#dcfce7",
-                      color: isDebit ? "#b91c1c" : "#166534",
-                    }}
-                  >
+                  <span style={{
+                    ...styles.badge,
+                    backgroundColor: isDebit ? '#fee2e2' : '#dcfce7',
+                    color: isDebit ? '#b91c1c' : '#166534'
+                  }}>
                     {tx.type}
                   </span>
                 </td>
 
-                {/* FROM */}
+                <td style={styles.upiText}>{tx.fromUpi}</td>
+                <td style={styles.upiText}>{tx.toUpi}</td>
+
+                {/* 4. AMOUNT */}
+                <td style={{ 
+                  ...styles.td, 
+                  fontWeight: '700', 
+                  color: isDebit ? '#dc2626' : '#16a34a' 
+                }}>
+                  {isDebit ? '-' : '+'}₹{tx.amount.toLocaleString('en-IN')}
+                </td>
+
+                {/* 5. STATUS BADGE */}
                 <td>
-                  {isDebit ? (
-                    <span style={styles.me}>You</span>
-                  ) : (
-                    `Wallet #${tx.counterpartyWalletId}`
-                  )}
+                  <span style={{
+                    ...styles.statusBadge,
+                    backgroundColor: tx.status === 'SUCCESS' ? '#dcfce7' : '#fee2e2',
+                    color: tx.status === 'SUCCESS' ? '#15803d' : '#991b1b',
+                  }}>
+                    {tx.status}
+                  </span>
                 </td>
 
-                {/* TO */}
-                <td>
-                  {isDebit ? (
-                    `Wallet #${tx.counterpartyWalletId}`
-                  ) : (
-                    <span style={styles.me}>You</span>
-                  )}
-                </td>
-
-                {/* AMOUNT */}
-                <td
-                  style={{
-                    textAlign: "right",
-                    fontWeight: "700",
-                    color: isDebit ? "#dc2626" : "#16a34a",
-                  }}
-                >
-                  {isDebit ? "-" : "+"}₹{tx.amount}
-                </td>
-
-                {/* DATE */}
-                <td style={{ color: "#6b7280", fontSize: "0.85rem" }}>
-                  {new Date(tx.timestamp).toLocaleString("en-IN", {
-                    dateStyle: "medium",
-                    timeStyle: "short",
+                {/* 6. DATE */}
+                <td style={styles.dateText}>
+                  {new Date(tx.timestamp).toLocaleString('en-IN', {
+                    day: '2-digit',
+                    month: 'short',
+                    hour: '2-digit',
+                    minute: '2-digit'
                   })}
                 </td>
               </tr>
@@ -81,36 +73,74 @@ export default function TransactionTable({ txs }) {
       </table>
     </div>
   );
-}
+};
 
-/* ===================== STYLES ===================== */
-
+/* =====================  STYLES ===================== */
 const styles = {
   card: {
-    marginTop: "1rem",
-    background: "#fff",
-    borderRadius: "16px",
-    padding: "1.5rem",
-    boxShadow: "0 15px 40px rgba(0,0,0,0.12)",
+    background: '#ffffff',
+    borderRadius: '16px',
+    padding: '1.5rem',
+    boxShadow: '0 10px 25px rgba(0,0,0,0.05)',
+    marginTop: '1.5rem',
+    overflowX: 'auto'
+  },
+  emptyCard: {
+    padding: '3rem',
+    textAlign: 'center',
+    background: '#f9fafb',
+    borderRadius: '16px',
+    color: '#6b7280',
+    border: '2px dashed #e5e7eb'
   },
   table: {
-    width: "100%",
-    borderCollapse: "collapse",
+    width: '100%',
+    borderCollapse: 'separate',
+    borderSpacing: '0 8px',
+  },
+  th: {
+    textAlign: 'left',
+    padding: '12px 16px',
+    color: '#4b5563',
+    fontSize: '0.85rem',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em'
+  },
+  row: {
+    backgroundColor: '#ffffff',
+    transition: 'transform 0.2s ease',
+  },
+  td: {
+    padding: '16px',
+    fontSize: '0.95rem',
+    color: '#111827'
+  },
+  upiText: {
+    padding: '16px',
+    fontSize: '0.9rem',
+    color: '#374151',
+    fontWeight: '500',
+    fontFamily: 'monospace'
   },
   badge: {
-    padding: "0.3rem 0.8rem",
-    borderRadius: "999px",
-    fontSize: "0.75rem",
-    fontWeight: "800",
-    letterSpacing: "0.04em",
+    padding: '6px 12px',
+    borderRadius: '8px',
+    fontSize: '0.75rem',
+    fontWeight: '800',
   },
-  me: {
-    fontWeight: "700",
-    color: "#1e3a8a",
+  statusBadge: {
+    padding: '4px 10px',
+    borderRadius: '6px',
+    fontSize: '0.7rem',
+    fontWeight: '700',
+    display: 'inline-block'
   },
-  empty: {
-    marginTop: "1.5rem",
-    textAlign: "center",
-    color: "#6b7280",
-  },
+  dateText: {
+    padding: '16px',
+    fontSize: '0.85rem',
+    color: '#6b7280',
+  }
 };
+
+export default TransactionTable;

@@ -4,7 +4,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
+import lombok.Data;
 
+@Data 
 public class UpiTransferRequest {
 
     @NotBlank
@@ -13,19 +15,7 @@ public class UpiTransferRequest {
     @NotNull
     private BigDecimal amount;
 
-    public String getToUpiId() {
-        return toUpiId;
-    }
-
-    public void setToUpiId(String toUpiId) {
-        this.toUpiId = toUpiId;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
+    @NotBlank 
+    private String pin; 
+    private String otp; 
 }
