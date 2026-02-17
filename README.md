@@ -1,261 +1,325 @@
+# 💳 KoshPay – Secure UPI-Based Digital Wallet System
 
-# 💳 E-Wallet Simulator
+KoshPay is a production-style full-stack fintech wallet platform built using:
 
-A **Full-Stack E-Wallet application** implementing **secure digital wallet operations** with **ACID-compliant transactions**, **real-time balance updates**, **audit logging**, and a **modern responsive UI**.
-
----
-
-## 📌 Features Overview
-
-### 🔐 Authentication & Security
-
-* User registration with **email & password validation**
-* Secure login using **JWT authentication**
-* Passwords encrypted using **BCrypt**
-* Protected routes (frontend + backend)
-
----
-
-### 💼 Wallet Management
-
-* Automatic wallet creation on user registration
-* Minimum initial balance enforcement
-* Fetch wallet balance securely
-* Persistent balance storage (MySQL)
+* ⚛ React (Vite)
+* ☕ Spring Boot
+* 🛢 MySQL
+* 🔐 JWT Authentication
+* 📡 WebSocket (Real-Time Balance Updates)
+* 🛡 Fraud Detection Engine
+* 🔄 Transaction Lifecycle Engine
+* ⏳ Scheduled Payment Processor
+* 📊 Admin Analytics Dashboard
+* 🐳 Dockerized Deployment
 
 ---
 
-### 💸 Money Transfer
+# 🏗 System Architecture
 
-* Transfer money between wallets
-* Prevents:
-
-  * Self-transfer
-  * Negative transfers
-  * Insufficient balance
-* Fully **ACID-compliant** using Spring `@Transactional`
-
----
-
-### ⚡ Real-Time Balance Updates
-
-* **WebSocket integration**
-* Sender and receiver balances update instantly without page refresh
-
----
-
-### 📜 Transaction History
-
-* Debit / Credit transactions clearly marked
-* Color-coded UI (🔴 Debit | 🟢 Credit)
-* “You” vs Counterparty wallet display
-* Sorted by latest transaction
+```
+                ┌──────────────────────────┐
+                │        React App         │
+                │      (Frontend)          │
+                │    http://localhost:5173 │
+                └──────────────┬───────────┘
+                               │ REST API
+                               ▼
+                ┌──────────────────────────┐
+                │     Spring Boot API      │
+                │        (Backend)         │
+                │    http://localhost:8080 │
+                └──────────────┬───────────┘
+                               │ JPA
+                               ▼
+                ┌──────────────────────────┐
+                │         MySQL DB         │
+                │       Port: 3306         │
+                └──────────────────────────┘
+```
 
 ---
 
-### 🧾 Audit Trail (Compliance-Ready)
+# 🐳 Run With Docker
 
-* Logs critical user actions:
+### 1️⃣ Start Docker Desktop
 
-  * LOGIN (SUCCESS / FAILURE)
-  * TRANSFER (SUCCESS / FAILURE)
-  * RECEIVE
-* Stores:
+Make sure Docker is running.
 
-  * User ID
-  * Old balance
-  * New balance
-  * Timestamp
-* Audit logging runs in **independent transactions** (fail-safe)
+### 2️⃣ From Root Folder Run
 
----
+```bash
+docker compose up --build
+```
 
-### 🧪 Robust Testing & Quality Assurance
-* **Unit Testing with Mockito**: Dependencies are mocked to test service logic in isolation, ensuring fast and reliable test execution.
-* **Code Coverage with JaCoCo**: Integrated JaCoCo to track and maintain high testing standards.
-* Comprehensive test cases for:
-  * Context loading
-  * Transaction safety & ACID properties
-  * Validation & Exception handling
+That’s it ✅
 
 ---
 
-## 🧠 ACID Properties Demonstration
+## 🌐 Service Ports
 
-| Property        | How It Is Achieved                     |
-| --------------- | -------------------------------------- |
-| **Atomicity**   | Transfers rollback entirely on failure |
-| **Consistency** | Balance invariants preserved           |
-| **Isolation**   | Concurrent transfers don’t interfere   |
-| **Durability**  | Data persists after server restart     |
-
----
-
-## 🛠️ Tech Stack
-
-### Backend
-
-* Java 21
-* Spring Boot
-* Spring Security + JWT
-* Spring Data JPA (Hibernate)
-* MySQL (Dockerized)
-* WebSockets
-* Lombok
-* JUnit 5 & Mockito (Testing & Mocking)
-* JaCoCo (Code Coverage Tooling)
-
-### Frontend
-
-* React.js
-* Axios
-* React Router
-* WebSockets
-* CSS (Custom UI)
-
-### DevOps / Tools
-
-* Docker (MySQL only)
-* Gradle
-* Swagger UI
-* Git & GitHub
+| Service  | URL                                            |
+| -------- | ---------------------------------------------- |
+| Frontend | [http://localhost:5173](http://localhost:5173) |
+| Backend  | [http://localhost:8080](http://localhost:8080) |
+| MySQL    | localhost:3306                                 |
 
 ---
 
-## 📂 Project Structure
+# 📁 Global Project Structure
 
-```text
-ewallet_simulator/
+```
+KOSHPAY/
+│
+├── .gradle/
+├── .vscode/
 ├── backend/
-│   ├── src/main/java/com/ewallet/wallet_service/
-│   │   ├── controller/
-│   │   ├── service/
-│   │   ├── repository/
-│   │   ├── entity/
-│   │   ├── dto/
-│   │   ├── websocket/
-│   │   ├── security/
-│   │   └── exception/
-│   ├── src/test/
-│   ├── application.properties
-│   ├── .env
-│   ├── build.gradle
-│   └── docker-compose.yml
 ├── frontend/
-│   ├── src/
-│   │   ├── pages/
-│   │   ├── components/
-│   │   ├── auth/
-│   │   ├── websocket/
-│   │   └── api/
-│   ├── index.css
-│   └── package.json
+├── bin/
+├── build/
 ├── Screenshots/
-├── Video_Walkthrough/
-└── README.md
+├── docker-compose.yml
+├── README.md
+└── Video_Overview.mp4
 ```
----
-
-## 🐳 MySQL Setup (Docker)  : 📄 docker-compose.yml
-
-### ▶️ Start MySQL
-
-```bash
-docker compose up -d
-
-```
----
-
-## 🚀 Running the Application
-
-### 1️⃣ Backend
-
-```bash
-cd backend
-./gradlew bootRun or ./gradlew clean built bootrun
-```
-* API: [http://localhost:8080]
-* Swagger UI: [http://localhost:8080/swagger-ui.html]
 
 ---
 
-### 2️⃣ Frontend
+# ⚛ Frontend Structure
 
-```bash
-cd frontend
-npm install
-npm run dev
 ```
-
-* App: [http://localhost:5173]
+frontend/
+│
+├── Dockerfile
+├── package.json
+├── vite.config.js
+│
+└── src/
+    │
+    ├── App.jsx
+    ├── main.jsx
+    ├── index.css
+    │
+    ├── api/
+    │   └── axios.js
+    │
+    ├── assets/
+    │   └── react.svg
+    │
+    ├── auth/
+    │   ├── AuthContext.jsx
+    │   ├── PrivateRoute.jsx
+    │   └── AdminRoute.jsx
+    │
+    ├── components/
+    │   ├── BalanceCard.jsx
+    │   ├── Navbar.jsx
+    │   ├── TransactionTable.jsx
+    │   ├── UpdatePin.jsx
+    │   └── admin/
+    │       └── AdminSidebar.jsx
+    │
+    ├── layouts/
+    │   └── AdminLayout.jsx
+    │
+    ├── pages/
+    │   ├── Dashboard.jsx
+    │   ├── Transfer.jsx
+    │   ├── Transactions.jsx
+    │   ├── Contacts.jsx
+    │   ├── MyQR.jsx
+    │   ├── ScanQR.jsx
+    │   ├── ScheduledPayments.jsx
+    │   ├── Security.jsx
+    │   └── admin/
+    │       ├── AdminDashboard.jsx
+    │       ├── AdminTransactions.jsx
+    │       ├── Analytics.jsx
+    │       ├── AuditLogs.jsx
+    │
+    └── websocket/
+        └── balanceSocket.js
+```
 
 ---
 
-## 🧪 Testing & Quality Reports
+# ☕ Backend Structure
 
-* Run Unit Tests:
-
-```bash
-  cd backend
-  ./gradlew clean test
 ```
-* Generate JaCoCo Coverage Report:
-```bash
-  ./gradlew jacocoTestReport
+backend/
+│
+├── Dockerfile
+├── pom.xml
+└── src/
+    ├── main/
+    │   ├── java/com/ewallet/wallet_service/
+    │   │
+    │   │   ├── WalletServiceApplication.java
+    │   │
+    │   │   ├── config/
+    │   │   ├── controller/
+    │   │   │   ├── AuthController.java
+    │   │   │   ├── UpiTransferController.java
+    │   │   │   ├── ScheduledPaymentController.java
+    │   │   │   ├── AdminController.java
+    │   │   │   ├── WalletController.java
+    │   │   │   └── ContactController.java
+    │   │
+    │   │   ├── dto/request/
+    │   │   ├── dto/response/
+    │   │   ├── entity/
+    │   │   ├── repository/
+    │   │   ├── security/
+    │   │   ├── fraud/
+    │   │   ├── service/
+    │   │   │   ├── impl/
+    │   │   │   └── util/
+    │   │   └── websocket/
+    │   │
+    │   └── resources/
+    │       ├── application.properties
+    │       └── banner.txt
+    │
+    └── test/java/com/ewallet/wallet_service/
+        ├── controller/
+        ├── service/
+        ├── security/
+        ├── entity/
+        ├── exception/
+        └── config/
 ```
-
-### 📊 Test Report
-
-* View Reports in Browser:
-
-  * Test Summary: backend/build/reports/tests/test/index.html
-
-  * Coverage Detail: backend/build/reports/jacoco/test/html/index.html
-
 
 ---
 
-## 🧪 ACID Test Cases Summary
+# 👤 User Features
 
-### Atomicity
+### 🔐 Authentication
 
-* Transfer fails → balances unchanged
+* JWT login/register
+* Secure password hashing
+* Role-based access
 
-### Consistency
+### 💸 UPI Transfers
 
-* Total wallet balance conserved
+* PIN verification
+* Fraud engine risk evaluation
+* OTP challenge (> ₹1000 or high risk)
+* Self-transfer prevention
+* Insufficient balance validation
+* ACID-safe transaction updates
 
-### Isolation
+### 🔄 Transaction Lifecycle
 
-* Concurrent transfers safe
+* INITIATED
+* PENDING
+* SUCCESS
+* FAILED
 
-### Durability
+### 📡 Real-Time Updates
 
-* Restart server → data intact
+* WebSocket balance updates
+
+### 📱 QR Features
+
+* Generate UPI QR
+* Scan QR for instant payment
+
+### 📅 Scheduled Payments
+
+* Schedule future transfer
+* Cancel before execution
+* Auto-execution via scheduler
+* Execution failure handling
+
+### 📜 History
+
+* Transaction list
+* Status badges
+* Credit/Debit indicators
 
 ---
 
-## 📸 Screenshots Included
+# 👑 Admin Features
 
-* Real-time balance updates
-* Debit/Credit transactions
+### 📊 Dashboard
+
+* Total Transactions
+* Successful Volume
+* Success Rate
+* Fraud Block Count
+
+### 📈 Analytics
+
+* Pie chart (Status Distribution)
+* Bar chart (Lifecycle Breakdown)
+
+### 📜 Monitoring
+
+* Full transaction logs
 * Audit logs
-* Validation errors
-* JUnit test reports
+* Fraud activity tracking
 
 ---
 
-## 👥 Contributors
+# 🛡 Security Features
 
-* **Shravani Korde**
-* **Gautam Jha**
+* JWT authentication
+* BCrypt PIN hashing
+* Fraud rule engine:
 
+  * High amount rule
+  * Transaction velocity rule
+  * Wallet drain percentage rule
+  * New payee rule
+* OTP verification
+* Transaction rollback on failure
+* Scheduled execution isolation (REQUIRES_NEW)
 
 ---
 
-## ✅ Conclusion
+# 🧪 Test Cases
 
-This project demonstrates **enterprise-grade transactional integrity**, **real-time systems**, and **secure financial application design**, making it suitable for **academic evaluation, internships, and interviews**.
+## ✅ Authentication
+
+* Valid login → Success
+* Invalid password → Error
+* Unauthorized route → Blocked
+
+## ✅ Transfer
+
+* Correct PIN → Processed
+* Wrong PIN → Blocked
+* Amount > ₹1000 → OTP required
+* Invalid OTP → Failed
+* Fraud risk high → Blocked
+* Self-transfer → Blocked
+* Insufficient balance → Failed
+
+## ✅ Scheduled Payments
+
+* Create schedule → Stored as PENDING
+* Cancel before execution → Cancelled
+* Auto execute on time → SUCCESS
+* Insufficient balance at execution → FAILED
+
+## ✅ Admin
+
+* Analytics loads correctly
+* Fraud blocks counted
+* Audit logs recorded
+* Status distribution accurate
 
 ---
+
+# 👥 Authors
+
+Shravani Korde
+Cloud Engineer – GlideCloud
+
+Gautam Jha
+Cloud Engineer – GlideCloud
+
+Siddhant Ghodke
+Cloud Engineer – GlideCloud
+
 
