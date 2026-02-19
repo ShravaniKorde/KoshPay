@@ -3,8 +3,9 @@ package com.ewallet.wallet_service.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
+//import org.springframework.web.filter.CorsFilter;
 
 import java.util.List;
 
@@ -12,14 +13,14 @@ import java.util.List;
 public class CorsConfig {
 
     @Bean
-    public CorsFilter corsFilter() {
+    public CorsConfigurationSource corsConfigurationSource() {
 
         CorsConfiguration config = new CorsConfiguration();
 
         // 🔥 Frontend origin
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173", // Vite React
-                 "https://koshpay-frontend.onrender.com"  // render
+                "https://koshpay-frontend.onrender.com"  // render
         ));
 
         config.setAllowedMethods(List.of(
@@ -39,6 +40,6 @@ public class CorsConfig {
         config.setMaxAge(3600L);
         source.registerCorsConfiguration("/**", config);
 
-        return new CorsFilter(source);
+        return source;
     }
 }
