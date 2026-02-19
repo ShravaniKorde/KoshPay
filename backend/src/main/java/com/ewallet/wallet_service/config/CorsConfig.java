@@ -18,7 +18,7 @@ public class CorsConfig {
 
         // 🔥 Frontend origin
         config.setAllowedOrigins(List.of(
-                "http://localhost:5173"  // Vite React
+                "http://localhost:5173", // Vite React
                  "https://koshpay-frontend.onrender.com"  // render
         ));
 
