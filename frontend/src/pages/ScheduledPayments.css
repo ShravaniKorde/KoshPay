@@ -1,0 +1,248 @@
+/* ── ScheduledPayments.css ──────────────────────────────────── */
+
+.sp-page {
+  min-height: calc(100vh - 64px);
+  padding: 2.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sp-form-card {
+  width: 100%;
+  max-width: 500px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 2rem 2rem 1.75rem;
+  box-shadow: var(--shadow-md);
+  animation: fadeUp 0.4s ease both;
+}
+
+.sp-form-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.sp-form { display: flex; flex-direction: column; gap: 0.85rem; }
+
+.sp-input {
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.sp-input:focus {
+  border-color: rgba(245,200,66,0.45);
+  box-shadow: 0 0 0 3px rgba(245,200,66,0.08);
+}
+
+.sp-input::placeholder { color: var(--text-muted); }
+
+/* datetime-local icon color fix for dark */
+.sp-input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.6);
+  cursor: pointer;
+}
+
+.sp-submit-btn {
+  width: 100%;
+  padding: 0.8rem;
+  border: none;
+  border-radius: var(--r-sm);
+  background: linear-gradient(130deg, var(--gold) 0%, #e6b800 100%);
+  color: #0d1322;
+  font-size: 0.92rem;
+  font-weight: 700;
+  transition: all 0.2s;
+  box-shadow: 0 4px 18px rgba(245,200,66,0.28);
+}
+
+.sp-submit-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 26px rgba(245,200,66,0.4); }
+.sp-submit-btn:active { transform: translateY(0); }
+.sp-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.sp-cancel-edit-btn {
+  background: none;
+  border: none;
+  color: var(--red);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.3rem;
+  text-align: center;
+  transition: opacity 0.15s;
+}
+
+.sp-cancel-edit-btn:hover { opacity: 0.75; }
+
+/* List section */
+.sp-list-section {
+  width: 100%;
+  max-width: 900px;
+  margin-top: 2.5rem;
+  animation: fadeUp 0.45s ease 0.1s both;
+}
+
+.sp-list-heading {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+.sp-empty {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 2.5rem;
+  background: var(--bg-card);
+  border: 1px dashed var(--border);
+  border-radius: var(--r-lg);
+}
+
+/* Schedule card */
+.sp-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: var(--shadow-sm);
+}
+
+.sp-card:hover { border-color: rgba(255,255,255,0.11); }
+
+.sp-card__left { display: flex; flex-direction: column; gap: 0.3rem; }
+
+.sp-card__upi {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.sp-card__amount {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: -0.015em;
+}
+
+.sp-card__date {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.sp-card__countdown {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--blue);
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--blue-bg);
+  border: 1px solid rgba(96,165,250,0.2);
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  margin-top: 0.15rem;
+  width: fit-content;
+}
+
+/* Status badge */
+.sp-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.22rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-top: 0.2rem;
+  width: fit-content;
+}
+
+.sp-status.SUCCESS  { background: var(--green-bg); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+.sp-status.FAILED   { background: var(--red-bg);   color: var(--red);   border: 1px solid rgba(248,113,113,0.2); }
+.sp-status.PENDING  { background: rgba(245,200,66,0.1); color: var(--gold); border: 1px solid rgba(245,200,66,0.2); }
+.sp-status.CANCELLED{ background: var(--bg-surface); color: var(--text-muted); border: 1px solid var(--border); }
+
+.sp-card__actions { display: flex; flex-direction: column; gap: 0.5rem; flex-shrink: 0; }
+
+.sp-edit-btn {
+  padding: 0.42rem 1rem;
+  border: none;
+  border-radius: var(--r-sm);
+  background: var(--blue-bg);
+  border: 1px solid rgba(96,165,250,0.2);
+  color: var(--blue);
+  font-size: 0.78rem;
+  font-weight: 700;
+  transition: background 0.15s;
+}
+
+.sp-edit-btn:hover { background: rgba(96,165,250,0.2); }
+
+.sp-del-btn {
+  padding: 0.42rem 1rem;
+  border: none;
+  border-radius: var(--r-sm);
+  background: var(--red-bg);
+  border: 1px solid rgba(248,113,113,0.2);
+  color: var(--red);
+  font-size: 0.78rem;
+  font-weight: 700;
+  transition: background 0.15s;
+}
+
+.sp-del-btn:hover { background: rgba(248,113,113,0.22); }
+
+@media (max-width: 560px) {
+  .sp-card { flex-direction: column; align-items: flex-start; }
+  .sp-card__actions { flex-direction: row; }
+}
+
+/* ── Progress bar (added for countdown feature) ─────────────── */
+.sp-progress-wrap {
+  margin-top: 0.5rem;
+  margin-bottom: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.sp-progress-bar {
+  width: 100%;
+  max-width: 280px;
+  height: 5px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.sp-progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--gold) 0%, #4ade80 100%);
+  transition: width 1s linear;
+}

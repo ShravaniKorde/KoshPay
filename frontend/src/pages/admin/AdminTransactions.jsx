@@ -2,9 +2,16 @@ import { useEffect, useState } from "react";
 import api from "../../api/axios";
 import "./AdminTransactions.css";
 
+const STATUS_DOT = {
+  SUCCESS:  "#22c55e",
+  FAILED:   "#f87171",
+  PENDING:  "#60a5fa",
+  INITIATED:"#f5c842",
+};
+
 export default function AdminTransactions() {
   const [transactions, setTransactions] = useState([]);
-  const [search, setSearch] = useState("");
+  const [search, setSearch]             = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
   useEffect(() => {
@@ -16,38 +23,39 @@ export default function AdminTransactions() {
         console.error("Error loading transactions", err);
       }
     };
-
     loadTransactions();
   }, []);
 
-  // ================= FILTER LOGIC =================
   const filtered = transactions.filter((tx) => {
     const matchesSearch =
       tx.transactionId.toString().includes(search) ||
       tx.fromUpiId.toLowerCase().includes(search.toLowerCase()) ||
       tx.toUpiId.toLowerCase().includes(search.toLowerCase());
 
-    const matchesStatus =
-      statusFilter === "ALL" || tx.status === statusFilter;
+    const matchesStatus = statusFilter === "ALL" || tx.status === statusFilter;
 
     return matchesSearch && matchesStatus;
   });
 
   return (
-    <div className="admin-transactions">
-      <h1>All Transactions</h1>
+    <div className="atx-page">
+      <div>
+        <h1 className="atx-title">All Transactions</h1>
+        <p className="atx-subtitle">Full transaction log across all wallets</p>
+      </div>
 
-      <div className="filter-bar">
+      {/* Filter bar */}
+      <div className="atx-filters">
         <input
           type="text"
-          placeholder="Search by ID or UPI..."
-          className="search-input"
+          placeholder="🔍  Search by ID or UPI..."
+          className="atx-search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
 
         <select
-          className="status-filter"
+          className="atx-select"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
         >
@@ -57,47 +65,61 @@ export default function AdminTransactions() {
           <option value="PENDING">PENDING</option>
           <option value="INITIATED">INITIATED</option>
         </select>
+
+        <span className="atx-count">
+          {filtered.length} / {transactions.length} records
+        </span>
       </div>
 
-      <div className="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>From UPI</th>
-              <th>To UPI</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th>Timestamp</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.length === 0 ? (
+      {/* Table */}
+      <div className="atx-table-card">
+        <div className="atx-table-scroll">
+          <table className="atx-table">
+            <thead>
               <tr>
-                <td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>
-                  No transactions found
-                </td>
+                <th>ID</th>
+                <th>From UPI</th>
+                <th>To UPI</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Timestamp</th>
               </tr>
-            ) : (
-              filtered.map((tx) => (
-                <tr key={tx.transactionId}>
-                  <td>{tx.transactionId}</td>
-                  <td>{tx.fromUpiId}</td>
-                  <td>{tx.toUpiId}</td>
-                  <td>₹ {tx.amount}</td>
-                  <td>
-                    <span className={`badge ${tx.status.toLowerCase()}`}>
-                      {tx.status}
-                    </span>
-                  </td>
-                  <td>
-                    {new Date(tx.timestamp).toLocaleString()}
+            </thead>
+            <tbody>
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan="6">
+                    <div className="atx-empty">
+                      <div className="atx-empty__icon">📭</div>
+                      No transactions found
+                    </div>
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                filtered.map((tx) => (
+                  <tr key={tx.transactionId}>
+                    <td className="atx-id">#{tx.transactionId}</td>
+                    <td className="atx-upi">{tx.fromUpiId}</td>
+                    <td className="atx-upi">{tx.toUpiId}</td>
+                    <td className="atx-amount">₹{tx.amount.toLocaleString("en-IN")}</td>
+                    <td>
+                      <span className={`atx-badge ${tx.status.toLowerCase()}`}>
+                        <span className="dot" style={{ background: STATUS_DOT[tx.status] }} />
+                        {tx.status}
+                      </span>
+                    </td>
+                    <td className="atx-date">
+                      {new Date(tx.timestamp).toLocaleString("en-IN", {
+                        day: "2-digit", month: "short",
+                        hour: "2-digit", minute: "2-digit",
+                      })}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

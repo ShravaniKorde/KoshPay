@@ -1,0 +1,90 @@
+.myqr-page {
+  min-height: calc(100vh - 64px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2.5rem 1.25rem;
+}
+
+.myqr-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--r-xl);
+  padding: 2.25rem 2rem;
+  box-shadow: var(--shadow-lg), var(--shadow-gold);
+  text-align: center;
+  animation: fadeUp 0.4s ease both;
+}
+
+.myqr-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.myqr-upi {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  padding: 0.3rem 0.85rem;
+  border-radius: 99px;
+  display: inline-block;
+  margin-bottom: 1.6rem;
+}
+
+.myqr-frame {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.1rem;
+  background: #fff;
+  border-radius: var(--r-lg);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+  margin-bottom: 1.6rem;
+}
+
+.myqr-amount-section {
+  display: flex;
+  gap: 0.6rem;
+  align-items: stretch;
+}
+
+.myqr-amount-input {
+  flex: 1;
+  padding: 0.68rem 0.85rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.myqr-amount-input:focus {
+  border-color: rgba(245,200,66,0.45);
+  box-shadow: 0 0 0 3px rgba(245,200,66,0.08);
+}
+
+.myqr-amount-input::placeholder { color: var(--text-muted); }
+
+.myqr-gen-btn {
+  padding: 0.68rem 1rem;
+  border: none;
+  border-radius: var(--r-sm);
+  background: linear-gradient(130deg, var(--gold) 0%, #e6b800 100%);
+  color: #0d1322;
+  font-size: 0.82rem;
+  font-weight: 700;
+  transition: all 0.18s;
+  box-shadow: 0 3px 12px rgba(245,200,66,0.28);
+  white-space: nowrap;
+}
+
+.myqr-gen-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(245,200,66,0.4); }

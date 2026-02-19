@@ -2,8 +2,6 @@ package com.ewallet.wallet_service.fraud.rules;
 
 import com.ewallet.wallet_service.fraud.model.FraudContext;
 import com.ewallet.wallet_service.fraud.service.FraudRule;
-import com.ewallet.wallet_service.repository.TransactionRepository;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 

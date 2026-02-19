@@ -1,6 +1,7 @@
 import { useState } from "react";
 import api from "../api/axios";
 import { useNavigate, Link } from "react-router-dom";
+import "./Register.css";
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -15,18 +16,14 @@ export default function Register() {
 
   const submit = async (e) => {
     e.preventDefault();
-
     if (form.initialBalance < 1000) {
       alert("Minimum initial balance is ₹1000");
       return;
     }
-    
-    // Validate PIN length before sending to backend
     if (form.transactionPin.length !== 4) {
       alert("Transaction PIN must be exactly 4 digits");
       return;
     }
-
     try {
       await api.post("/setup/user", form);
       alert("Account created successfully");
@@ -37,80 +34,77 @@ export default function Register() {
   };
 
   return (
-    <div className="container" style={{ maxWidth: "420px" }}>
-      <h2 style={{ textAlign: "center", marginBottom: "1rem" }}>
-        Create Wallet Account
-      </h2>
+    <div className="register-page">
+      <div className="register-card">
+        <div className="register-logo">KoshPay</div>
+        <h2 className="register-title">Create Wallet Account</h2>
+        <p className="register-subtitle">Join KoshPay and start transacting instantly</p>
 
-      <form onSubmit={submit} className="card">
-        <label>Full Name</label>
-        <input
-          type="text"
-          placeholder="John Doe"
-          required
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-        />
+        <form onSubmit={submit} className="register-form">
+          <label className="register-label">Full Name</label>
+          <input
+            type="text"
+            placeholder="John Doe"
+            required
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            className="register-input"
+          />
 
-        <label>Email</label>
-        <input
-          type="email"
-          placeholder="john@email.com"
-          required
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
-        />
+          <label className="register-label">Email</label>
+          <input
+            type="email"
+            placeholder="john@email.com"
+            required
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            className="register-input"
+          />
 
-        <label>Password</label>
-        <input
-          type="password"
-          placeholder="********"
-          required
-          value={form.password}
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
-        />
+          <label className="register-label">Password</label>
+          <input
+            type="password"
+            placeholder="••••••••"
+            required
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+            className="register-input"
+          />
 
-        <label>Transaction PIN (4 Digits)</label>
-        <input
-          type="password"
-          placeholder="1234"
-          maxLength="4"
-          required
-          value={form.transactionPin}
-          onChange={(e) =>
-            setForm({ ...form, transactionPin: e.target.value.replace(/\D/g, '') })
-          }
-        />
-        <small style={{ color: "#666", display: "block", marginBottom: "1rem" }}>
-          Used for authorizing payments.
-        </small>
+          <label className="register-label">Transaction PIN (4 Digits)</label>
+          <input
+            type="password"
+            placeholder="1234"
+            maxLength="4"
+            required
+            value={form.transactionPin}
+            onChange={(e) =>
+              setForm({ ...form, transactionPin: e.target.value.replace(/\D/g, "") })
+            }
+            className="register-input"
+          />
+          <p className="register-hint">Used for authorizing every payment.</p>
 
-        <label>Initial Balance (₹)</label>
-        <input
-          type="number"
-          min={1000}
-          step={100}
-          value={form.initialBalance}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              initialBalance: Number(e.target.value),
-            })
-          }
-        />
+          <label className="register-label">Initial Balance (₹)</label>
+          <input
+            type="number"
+            min={1000}
+            step={100}
+            value={form.initialBalance}
+            onChange={(e) => setForm({ ...form, initialBalance: Number(e.target.value) })}
+            className="register-input"
+          />
+          <p className="register-hint">Minimum required: ₹1,000</p>
 
-        <small style={{ color: "#666" }}>
-          Minimum balance required: ₹1000
-        </small>
+          <button type="submit" className="register-submit">
+            Create Account
+          </button>
+        </form>
 
-        <button type="submit" style={{ marginTop: "1rem" }}>
-          Create Account
-        </button>
-      </form>
-
-      <p style={{ textAlign: "center", marginTop: "1rem" }}>
-        Already have an account? <Link to="/login">Login</Link>
-      </p>
+        <p className="register-footer">
+          Already have an account? <Link to="/login">Login</Link>
+        </p>
+      </div>
     </div>
   );
 }

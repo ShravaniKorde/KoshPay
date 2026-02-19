@@ -12,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OtpService {
+    @SuppressWarnings("unused")
     private static final int OTP_EXPIRY_MINUTES = 10;
+    @SuppressWarnings("unused")
     private static final Logger log = LoggerFactory.getLogger(OtpService.class);
     private final UserRepository userRepository;
 

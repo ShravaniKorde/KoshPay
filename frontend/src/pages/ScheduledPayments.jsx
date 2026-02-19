@@ -1,57 +1,44 @@
 import { useState, useEffect } from "react";
 import api from "../api/axios";
+import { toast } from "../components/Toast";
+import "./ScheduledPayments.css";
 
 export default function ScheduledPayments() {
-  const [upiId, setUpiId] = useState("");
-  const [amount, setAmount] = useState("");
+  const [upiId, setUpiId]       = useState("");
+  const [amount, setAmount]     = useState("");
   const [dateTime, setDateTime] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading]   = useState(false);
   const [schedules, setSchedules] = useState([]);
   const [editingId, setEditingId] = useState(null);
+  const [now, setNow]           = useState(Date.now());
 
-  // ================= LOAD SCHEDULES =================
   const loadSchedules = async () => {
     try {
       const res = await api.get("/scheduled-payments");
       setSchedules(res.data);
-    } catch (err) {
-      console.error("Failed to load schedules");
-    }
+    } catch { console.error("Failed to load schedules"); }
   };
 
-  useEffect(() => {
-    loadSchedules();
-  }, []);
+  useEffect(() => { loadSchedules(); }, []);
 
-  // 🔥 Real-time countdown refresh
+  // Tick every second for countdown + progress bar
   useEffect(() => {
-    const interval = setInterval(() => {
-      setSchedules((prev) => [...prev]);
-    }, 1000);
-
+    const interval = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(interval);
   }, []);
 
-  // ================= CREATE / UPDATE =================
   const handleSchedule = async (e) => {
     e.preventDefault();
-
-    if (!upiId || !amount || !dateTime) {
-      alert("Fill all fields");
-      return;
-    }
-
+    if (!upiId || !amount || !dateTime) { toast.error("Fill all fields"); return; }
     try {
       setLoading(true);
-
       if (editingId) {
         await api.put(`/scheduled-payments/${editingId}`, {
           receiverUpiId: upiId,
           amount: Number(amount),
           scheduledAt: new Date(dateTime).toISOString(),
         });
-
-        alert("✅ Schedule Updated Successfully");
+        toast.success("Schedule updated successfully!");
         setEditingId(null);
       } else {
         await api.post("/scheduled-payments", {
@@ -59,39 +46,30 @@ export default function ScheduledPayments() {
           amount: Number(amount),
           scheduledAt: new Date(dateTime).toISOString(),
         });
-
-        alert("✅ Payment Scheduled Successfully");
+        toast.success("Payment scheduled successfully!");
       }
-
-      setUpiId("");
-      setAmount("");
-      setDateTime("");
+      setUpiId(""); setAmount(""); setDateTime("");
       loadSchedules();
-
     } catch (err) {
-      alert(err.response?.data?.message || "Operation failed");
+      toast.error(err.response?.data?.message || "Operation failed");
     } finally {
       setLoading(false);
     }
   };
 
-  // ================= CANCEL =================
   const handleCancel = async (id) => {
     if (!window.confirm("Cancel this scheduled payment?")) return;
-
     try {
       await api.delete(`/scheduled-payments/${id}`);
-      alert("Cancelled successfully");
+      toast.success("Cancelled successfully");
       loadSchedules();
     } catch {
-      alert("Cancel failed");
+      toast.error("Cancel failed");
     }
   };
 
-  // ================= EDIT =================
   const handleEdit = (item) => {
     if (item.executed) return;
-
     setEditingId(item.id);
     setUpiId(item.receiverUpiId);
     setAmount(item.amount);
@@ -99,237 +77,104 @@ export default function ScheduledPayments() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // ================= COUNTDOWN =================
   const getCountdown = (iso) => {
-    const diff = new Date(iso) - new Date();
-
+    const diff = new Date(iso) - now;
     if (diff <= 0) return "Executing...";
-
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const minutes = Math.floor((diff / (1000 * 60)) % 60);
-    const seconds = Math.floor((diff / 1000) % 60);
-
-    return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const m = Math.floor((diff / (1000 * 60)) % 60);
+    const s = Math.floor((diff / 1000) % 60);
+    return `${d}d ${h}h ${m}m ${s}s`;
   };
 
-  const formatDate = (iso) =>
-    new Date(iso).toLocaleString();
+  // Progress: % elapsed from creation toward scheduled time
+  const getProgress = (item) => {
+    const end   = new Date(item.scheduledAt).getTime();
+    const start = item.createdAt
+      ? new Date(item.createdAt).getTime()
+      : end - 24 * 60 * 60 * 1000;
+    const total   = end - start;
+    const elapsed = now - start;
+    if (total <= 0) return 100;
+    return Math.min(100, Math.max(0, Math.round((elapsed / total) * 100)));
+  };
+
+  const formatDate = (iso) => new Date(iso).toLocaleString("en-IN");
 
   return (
-    <div style={styles.wrapper}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>
+    <div className="sp-page">
+
+      <div className="sp-form-card">
+        <h2 className="sp-form-title">
           {editingId ? "✏️ Edit Scheduled Payment" : "⏳ Schedule Payment"}
         </h2>
 
-        <form onSubmit={handleSchedule} style={styles.form}>
-          <input
-            type="text"
-            placeholder="Recipient UPI ID"
-            value={upiId}
-            onChange={(e) => setUpiId(e.target.value)}
-            style={styles.input}
-            required
-          />
-
-          <input
-            type="number"
-            placeholder="Amount (₹)"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            style={styles.input}
-            required
-          />
-
-          <input
-            type="datetime-local"
-            value={dateTime}
-            onChange={(e) => setDateTime(e.target.value)}
-            style={styles.input}
-            required
-          />
-
-          <button
-            type="submit"
-            style={styles.button}
-            disabled={loading}
-          >
+        <form onSubmit={handleSchedule} className="sp-form">
+          <input type="text" placeholder="Recipient UPI ID" value={upiId}
+            onChange={(e) => setUpiId(e.target.value)} className="sp-input" required />
+          <input type="number" placeholder="Amount (₹)" value={amount}
+            onChange={(e) => setAmount(e.target.value)} className="sp-input" required />
+          <input type="datetime-local" value={dateTime}
+            onChange={(e) => setDateTime(e.target.value)} className="sp-input" required />
+          <button type="submit" className="sp-submit-btn" disabled={loading}>
             {loading
-              ? editingId
-                ? "Updating..."
-                : "Scheduling..."
-              : editingId
-              ? "Update Payment"
-              : "Schedule Payment"}
+              ? editingId ? "Updating..." : "Scheduling..."
+              : editingId ? "Update Payment" : "Schedule Payment"}
           </button>
-
           {editingId && (
-            <button
-              type="button"
-              onClick={() => {
-                setEditingId(null);
-                setUpiId("");
-                setAmount("");
-                setDateTime("");
-              }}
-              style={styles.cancelEdit}
-            >
+            <button type="button" className="sp-cancel-edit-btn"
+              onClick={() => { setEditingId(null); setUpiId(""); setAmount(""); setDateTime(""); }}>
               Cancel Edit
             </button>
           )}
         </form>
       </div>
 
-      {/* ================= UPCOMING PAYMENTS ================= */}
-      <div style={styles.listContainer}>
-        <h3>📅 Upcoming Payments</h3>
+      <div className="sp-list-section">
+        <div className="sp-list-heading">📅 Upcoming Payments</div>
 
         {schedules.length === 0 && (
-          <p style={styles.empty}>No scheduled payments</p>
+          <div className="sp-empty">No scheduled payments yet</div>
         )}
 
-        {schedules.map((item) => (
-          <div key={item.id} style={styles.scheduleCard}>
-            <div>
-              <strong>{item.receiverUpiId}</strong>
-              <p>₹ {item.amount}</p>
-              <p>{formatDate(item.scheduledAt)}</p>
+        {schedules.map((item) => {
+          const progress  = getProgress(item);
+          const isPending = !item.executed && item.status === "PENDING";
+
+          return (
+            <div key={item.id} className="sp-card">
+              <div className="sp-card__left">
+                <div className="sp-card__upi">{item.receiverUpiId}</div>
+                <div className="sp-card__amount">
+                  ₹{Number(item.amount).toLocaleString("en-IN")}
+                </div>
+                <div className="sp-card__date">{formatDate(item.scheduledAt)}</div>
+
+                {/* Progress bar — only for PENDING */}
+                {isPending && (
+                  <div className="sp-progress-wrap">
+                    <div className="sp-progress-bar">
+                      <div className="sp-progress-fill" style={{ width: `${progress}%` }} />
+                    </div>
+                    <div className="sp-card__countdown">
+                      ⏳ {getCountdown(item.scheduledAt)}
+                    </div>
+                  </div>
+                )}
+
+                <span className={`sp-status ${item.status}`}>{item.status}</span>
+              </div>
 
               {!item.executed && (
-                <p style={styles.countdown}>
-                  ⏳ {getCountdown(item.scheduledAt)}
-                </p>
+                <div className="sp-card__actions">
+                  <button className="sp-edit-btn" onClick={() => handleEdit(item)}>Edit</button>
+                  <button className="sp-del-btn"  onClick={() => handleCancel(item.id)}>Delete</button>
+                </div>
               )}
-
-              <span style={{
-                ...styles.status,
-                background:
-                  item.status === "SUCCESS"
-                    ? "#22c55e"
-                    : item.status === "FAILED"
-                    ? "#ef4444"
-                    : "#f59e0b",
-              }}>
-                {item.status}
-              </span>
             </div>
-
-            {!item.executed && (
-              <div style={styles.actionGroup}>
-                <button
-                  style={styles.editBtn}
-                  onClick={() => handleEdit(item)}
-                >
-                  Edit
-                </button>
-
-                <button
-                  style={styles.cancelBtn}
-                  onClick={() => handleCancel(item.id)}
-                >
-                  Delete
-                </button>
-              </div>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
 }
-
-const styles = {
-  wrapper: {
-    minHeight: "90vh",
-    padding: "2rem",
-    background: "linear-gradient(135deg,#f0f4ff,#ffffff)",
-  },
-  card: {
-    maxWidth: "500px",
-    margin: "auto",
-    background: "#fff",
-    padding: "2rem",
-    borderRadius: "16px",
-    boxShadow: "0 20px 50px rgba(0,0,0,0.1)",
-  },
-  title: {
-    textAlign: "center",
-    marginBottom: "1rem",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "1rem",
-  },
-  input: {
-    padding: "0.7rem",
-    borderRadius: "8px",
-    border: "1px solid #ccc",
-  },
-  button: {
-    padding: "0.8rem",
-    borderRadius: "10px",
-    border: "none",
-    background: "linear-gradient(90deg,#2563eb,#1e40af)",
-    color: "#fff",
-    cursor: "pointer",
-  },
-  cancelEdit: {
-    background: "none",
-    border: "none",
-    color: "#ef4444",
-    marginTop: "5px",
-    cursor: "pointer",
-  },
-  listContainer: {
-    marginTop: "3rem",
-    maxWidth: "900px",
-    marginInline: "auto",
-  },
-  scheduleCard: {
-    background: "#fff",
-    padding: "1.2rem",
-    borderRadius: "12px",
-    marginTop: "1rem",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    boxShadow: "0 8px 20px rgba(0,0,0,0.05)",
-  },
-  status: {
-    padding: "4px 10px",
-    borderRadius: "20px",
-    color: "#fff",
-    fontSize: "0.8rem",
-  },
-  countdown: {
-    fontSize: "0.85rem",
-    color: "#2563eb",
-    marginTop: "5px",
-  },
-  actionGroup: {
-    display: "flex",
-    gap: "8px",
-  },
-  editBtn: {
-    background: "#3b82f6",
-    color: "#fff",
-    border: "none",
-    padding: "6px 12px",
-    borderRadius: "8px",
-    cursor: "pointer",
-  },
-  cancelBtn: {
-    background: "#ef4444",
-    color: "#fff",
-    border: "none",
-    padding: "6px 12px",
-    borderRadius: "8px",
-    cursor: "pointer",
-  },
-  empty: {
-    marginTop: "1rem",
-    color: "#777",
-  },
-};

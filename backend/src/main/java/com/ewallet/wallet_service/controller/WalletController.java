@@ -1,10 +1,8 @@
 package com.ewallet.wallet_service.controller;
 
-import com.ewallet.wallet_service.dto.request.TransferRequest;
 import com.ewallet.wallet_service.dto.response.TransactionResponse;
 import com.ewallet.wallet_service.dto.response.WalletResponse;
 import com.ewallet.wallet_service.service.WalletService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

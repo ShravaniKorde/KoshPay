@@ -23,20 +23,21 @@ import Navbar from "./components/Navbar";
 import Security from "./pages/Security";
 import AdminLayout from "./layouts/AdminLayout";
 
+// ── Toast (mount once here, use toast() anywhere) ─────────────
+import ToastContainer from "./components/Toast";
+
 export default function App() {
   const { isAuthenticated, isAdmin, loading } = useAuth();
 
   if (loading) {
     return (
-      <div
-        style={{
-          height: "100vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          fontSize: "1.2rem",
-        }}
-      >
+      <div style={{
+        height: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        fontSize: "1.2rem",
+      }}>
         Loading...
       </div>
     );
@@ -44,12 +45,14 @@ export default function App() {
 
   return (
     <>
+      {/* Global toast notifications */}
+      <ToastContainer />
+
       {/* Show Navbar only for normal users */}
       {isAuthenticated && !isAdmin && <Navbar />}
 
       <Routes>
-
-        {/* ================= PUBLIC ROUTES ================= */}
+        {/* ── PUBLIC ─────────────────────────────────────────── */}
         <Route
           path="/login"
           element={
@@ -58,40 +61,34 @@ export default function App() {
               : <Login />
           }
         />
-
         <Route
           path="/register"
-          element={
-            isAuthenticated
-              ? <Navigate to="/dashboard" />
-              : <Register />
-          }
+          element={isAuthenticated ? <Navigate to="/dashboard" /> : <Register />}
         />
 
-        {/* ================= USER ROUTES ================= */}
+        {/* ── USER ───────────────────────────────────────────── */}
         <Route element={<PrivateRoute />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/transfer" element={<Transfer />} />
-          <Route path="/transactions" element={<Transactions />} />
-          <Route path="/contacts" element={<Contacts />} /> 
-          <Route path="/security" element={<Security />} /> 
-          <Route path="/my-qr" element={<MyQR />} />
-          <Route path="/scan-qr" element={<ScanQR />} />
+          <Route path="/dashboard"          element={<Dashboard />} />
+          <Route path="/transfer"           element={<Transfer />} />
+          <Route path="/transactions"       element={<Transactions />} />
+          <Route path="/contacts"           element={<Contacts />} />
+          <Route path="/security"           element={<Security />} />
+          <Route path="/my-qr"              element={<MyQR />} />
+          <Route path="/scan-qr"            element={<ScanQR />} />
           <Route path="/scheduled-payments" element={<ScheduledPayments />} />
-
         </Route>
 
-        {/* ================= ADMIN ROUTES ================= */}
+        {/* ── ADMIN ──────────────────────────────────────────── */}
         <Route element={<AdminRoute />}>
           <Route element={<AdminLayout />}>
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/dashboard"    element={<AdminDashboard />} />
             <Route path="/admin/transactions" element={<AdminTransactions />} />
-            <Route path="/admin/audit-logs" element={<AuditLogs />} />
-            <Route path="/admin/analytics" element={<Analytics />} />
+            <Route path="/admin/audit-logs"   element={<AuditLogs />} />
+            <Route path="/admin/analytics"    element={<Analytics />} />
           </Route>
         </Route>
 
-        {/* ================= DEFAULT ROOT ================= */}
+        {/* ── DEFAULT / CATCH-ALL ─────────────────────────────── */}
         <Route
           path="/"
           element={
@@ -100,21 +97,12 @@ export default function App() {
               : <Navigate to="/login" />
           }
         />
-
-        {/* ================= CATCH ALL ================= */}
         <Route
           path="*"
           element={
-            <Navigate
-              to={
-                isAuthenticated
-                  ? (isAdmin ? "/admin/dashboard" : "/dashboard")
-                  : "/login"
-              }
-            />
+            <Navigate to={isAuthenticated ? (isAdmin ? "/admin/dashboard" : "/dashboard") : "/login"} />
           }
         />
-
       </Routes>
     </>
   );
