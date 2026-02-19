@@ -26,7 +26,11 @@ public class CorsConfig {
                 "GET", "POST", "PUT", "DELETE", "OPTIONS"
         ));
 
-        config.setAllowedHeaders(List.of("*"));
+        config.setAllowedHeaders(List.of(
+                "Authorization",
+                "Content-Type",
+                "Accept"
+        ));
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source =
