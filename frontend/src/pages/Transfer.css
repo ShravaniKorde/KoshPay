@@ -1,0 +1,223 @@
+/* ── Transfer.css ───────────────────────────────────────────── */
+
+.transfer-page {
+  min-height: calc(100vh - 64px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2.5rem 1.25rem;
+}
+
+.transfer-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 2.25rem 2rem;
+  box-shadow: var(--shadow-lg);
+  animation: fadeUp 0.4s ease both;
+}
+
+.transfer-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--text-primary);
+  text-align: center;
+  margin-bottom: 0.3rem;
+}
+
+.transfer-subtitle {
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1.75rem;
+}
+
+.transfer-form { display: flex; flex-direction: column; gap: 0; }
+
+.transfer-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  margin-top: 1.1rem;
+  margin-bottom: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.transfer-label:first-of-type { margin-top: 0; }
+
+.transfer-lock-tag {
+  font-size: 0.64rem;
+  background: rgba(245,200,66,0.12);
+  border: 1px solid rgba(245,200,66,0.25);
+  color: var(--gold);
+  padding: 0.15rem 0.5rem;
+  border-radius: 99px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.transfer-input {
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.transfer-input:focus {
+  border-color: rgba(245,200,66,0.45);
+  box-shadow: 0 0 0 3px rgba(245,200,66,0.08);
+}
+
+.transfer-input::placeholder { color: var(--text-muted); }
+
+.transfer-input:disabled {
+  background: rgba(255,255,255,0.02);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.transfer-submit {
+  margin-top: 1.75rem;
+  width: 100%;
+  padding: 0.82rem;
+  border: none;
+  border-radius: var(--r-sm);
+  background: linear-gradient(130deg, var(--gold) 0%, #e6b800 100%);
+  color: #0d1322;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  transition: all 0.2s;
+  box-shadow: 0 4px 18px rgba(245,200,66,0.3);
+}
+
+.transfer-submit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 26px rgba(245,200,66,0.42);
+}
+
+.transfer-submit:active { transform: translateY(0); }
+.transfer-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+/* ── OTP Modal ──────────────────────────────────────────────── */
+.otp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 500;
+  animation: fadeUp 0.25s ease both;
+}
+
+.otp-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--r-xl);
+  padding: 2.25rem 2rem;
+  width: 100%;
+  max-width: 340px;
+  text-align: center;
+  box-shadow: var(--shadow-lg), var(--shadow-gold);
+}
+
+.otp-modal__icon {
+  font-size: 2.2rem;
+  margin-bottom: 0.75rem;
+}
+
+.otp-modal__title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.3rem;
+}
+
+.otp-modal__text {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1.25rem;
+}
+
+.otp-modal__input {
+  width: 100%;
+  padding: 0.9rem;
+  font-size: 1.6rem;
+  text-align: center;
+  letter-spacing: 0.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--r-sm);
+  color: var(--gold);
+  outline: none;
+  transition: box-shadow 0.2s;
+}
+
+.otp-modal__input:focus {
+  box-shadow: 0 0 0 3px rgba(245,200,66,0.12);
+}
+
+.otp-timer {
+  font-size: 0.78rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-muted);
+  margin-top: 0.75rem;
+  margin-bottom: 1.2rem;
+}
+
+.otp-verify-btn {
+  width: 100%;
+  padding: 0.78rem;
+  border: none;
+  border-radius: var(--r-sm);
+  background: linear-gradient(130deg, var(--gold) 0%, #e6b800 100%);
+  color: #0d1322;
+  font-size: 0.9rem;
+  font-weight: 700;
+  transition: all 0.2s;
+  box-shadow: 0 4px 18px rgba(245,200,66,0.28);
+}
+
+.otp-verify-btn:hover { transform: translateY(-1px); }
+.otp-verify-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.otp-resend-btn {
+  background: none;
+  border: none;
+  font-size: 0.82rem;
+  color: var(--blue);
+  margin-top: 0.75rem;
+  transition: opacity 0.2s;
+  padding: 0.25rem;
+}
+
+.otp-resend-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.otp-cancel-btn {
+  background: none;
+  border: none;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 0.4rem;
+  transition: color 0.15s;
+  padding: 0.25rem;
+}
+
+.otp-cancel-btn:hover { color: var(--red); }

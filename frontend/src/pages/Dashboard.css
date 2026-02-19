@@ -1,0 +1,263 @@
+/* ── Dashboard.css ──────────────────────────────────────────── */
+
+.dash-wrapper {
+  width: 100%;
+  max-width: 620px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Header */
+
+.dash-title {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  background: linear-gradient(130deg, var(--text-primary) 30%, var(--gold-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.1;
+}
+
+.dash-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: 0.3rem;
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+  animation: livePulse 1.8s ease-in-out infinite;
+}
+
+
+/* Pulse anims */
+.pulse-green { animation: greenPulse 0.55s ease-out; }
+.pulse-red   { animation: redPulse 0.55s ease-out; }
+
+@keyframes greenPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(74,222,128,0.55), var(--shadow-lg); }
+  100% { box-shadow: 0 0 0 22px rgba(74,222,128,0), var(--shadow-lg); }
+}
+@keyframes redPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(248,113,113,0.55), var(--shadow-lg); }
+  100% { box-shadow: 0 0 0 22px rgba(248,113,113,0), var(--shadow-lg); }
+}
+
+/* Stats row */
+.dash-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.dash-stat {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 1rem 0.75rem;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+
+.dash-stat:hover { border-color: rgba(255,255,255,0.11); }
+
+.dash-stat__value {
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-stat__label {
+  font-size: 0.67rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* Quick actions */
+.dash-section-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 0.65rem;
+}
+
+.dash-quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.65rem;
+}
+
+.dash-qa-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 1rem 0.5rem 0.85rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.18s ease;
+  cursor: pointer;
+}
+
+.dash-qa-btn:hover {
+  border-color: var(--border-gold);
+  background: var(--bg-glass-hover);
+  color: var(--gold);
+  transform: translateY(-2px);
+}
+
+.dash-qa-btn .qa-icon { font-size: 1.3rem; }
+
+/* Recent transactions card */
+.dash-recent {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 1.4rem;
+}
+
+.dash-recent__heading {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dash-tx-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 0.6rem;
+  border-radius: var(--r-sm);
+  transition: background 0.12s;
+  gap: 0.75rem;
+}
+
+.dash-tx-row:hover { background: var(--bg-glass-hover); }
+.dash-tx-row + .dash-tx-row { border-top: 1px solid var(--border); }
+
+.dash-tx-left {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.dash-tx-icon {
+  width: 35px; height: 35px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  font-weight: 700;
+}
+
+.dash-tx-icon.credit { background: var(--green-bg); border: 1px solid rgba(34,197,94,0.2); color: var(--green); }
+.dash-tx-icon.debit  { background: var(--red-bg);   border: 1px solid rgba(248,113,113,0.2); color: var(--red); }
+
+.dash-tx-info { display: flex; flex-direction: column; gap: 0.15rem; }
+
+.dash-tx-badge {
+  display: inline-flex;
+  padding: 0.18rem 0.55rem;
+  border-radius: 5px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  width: fit-content;
+}
+
+.dash-tx-badge.credit { background: var(--green-bg); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+.dash-tx-badge.debit  { background: var(--red-bg);   color: var(--red);   border: 1px solid rgba(248,113,113,0.2); }
+
+.dash-tx-date {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.dash-tx-amount {
+  font-size: 0.97rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-tx-amount.credit { color: var(--green); }
+.dash-tx-amount.debit  { color: var(--red); }
+
+/* Empty state */
+.dash-empty {
+  text-align: center;
+  padding: 2.5rem 1rem;
+}
+
+.dash-empty__icon { font-size: 2.2rem; opacity: 0.35; margin-bottom: 0.6rem; }
+.dash-empty p { font-size: 0.84rem; color: var(--text-muted); }
+
+/* Hint */
+.dash-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-size: 0.73rem;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  padding-bottom: 0.5rem;
+}
+
+/* Skeleton */
+.dash-skeleton-wrapper {
+  width: 100%;
+  max-width: 620px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.skel {
+  background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-card-hover) 50%, var(--bg-card) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: var(--r-lg);
+}
+
+.skel-balance { height: 172px; border-radius: var(--r-xl); }
+.skel-stats   { height: 72px;  border-radius: var(--r-md); }
+.skel-card    { height: 260px; }
+
+@media (max-width: 560px) {
+  .dash-quick-actions { grid-template-columns: repeat(2, 1fr); }
+  .dash-stats         { grid-template-columns: repeat(3, 1fr); }
+  .dash-title         { font-size: 1.65rem; }
+  .balance-amount     { font-size: 2.4rem; }
+}

@@ -21,7 +21,8 @@ public class ScheduledPaymentProcessingService {
 
     private final WalletRepository walletRepository;
     private final ScheduledPaymentRepository scheduledPaymentRepository;
-    private final TransactionRepository transactionRepository;
+    @SuppressWarnings("unused")
+private final TransactionRepository transactionRepository;
     private final AuditLogService auditLogService;
     private final BalanceWebSocketService balanceWebSocketService;
     private final TransactionStatusService statusService;

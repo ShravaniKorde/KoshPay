@@ -1,19 +1,20 @@
+// ── MyQR.jsx ────────────────────────────────────────────────────────────────
 import { useEffect, useState } from "react";
 import api from "../api/axios";
 import { QRCodeCanvas } from "qrcode.react";
+import "./MyQR.css";
 
 export default function MyQR() {
-  const [upiId, setUpiId] = useState("");
+  const [upiId, setUpiId]       = useState("");
   const [qrPayload, setQrPayload] = useState("");
-  const [amount, setAmount] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [amount, setAmount]     = useState("");
+  const [loading, setLoading]   = useState(true);
 
   useEffect(() => {
     const loadUpi = async () => {
       try {
-        const res = await api.get("/upi/me");
+        const res   = await api.get("/upi/me");
         setUpiId(res.data.upiId);
-
         const qrRes = await api.get("/upi/qr");
         setQrPayload(qrRes.data.payload);
       } catch (err) {
@@ -22,15 +23,12 @@ export default function MyQR() {
         setLoading(false);
       }
     };
-
     loadUpi();
   }, []);
 
   const generateWithAmount = async () => {
     try {
-      const qrRes = await api.get("/upi/qr", {
-        params: { amount },
-      });
+      const qrRes = await api.get("/upi/qr", { params: { amount } });
       setQrPayload(qrRes.data.payload);
     } catch (err) {
       console.error("QR generation failed", err);
@@ -38,30 +36,39 @@ export default function MyQR() {
   };
 
   if (loading) {
-    return <div className="page-center">Loading QR...</div>;
+    return (
+      <div className="myqr-page">
+        <div className="myqr-card">
+          <p style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.85rem" }}>
+            Loading QR...
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="page-center">
-      <div className="card qr-card">
-        <h2>My UPI QR Code</h2>
-        <p className="muted">{upiId}</p>
+    <div className="myqr-page">
+      <div className="myqr-card">
+        <h2 className="myqr-title">My UPI QR Code</h2>
+        <div className="myqr-upi">{upiId}</div>
 
         {qrPayload && (
-          <div className="qr-wrapper">
-            <QRCodeCanvas value={qrPayload} size={220} />
+          <div className="myqr-frame">
+            <QRCodeCanvas value={qrPayload} size={210} />
           </div>
         )}
 
-        <div className="qr-amount-section">
+        <div className="myqr-amount-section">
           <input
             type="number"
-            placeholder="Optional amount"
+            placeholder="Optional amount (₹)"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
+            className="myqr-amount-input"
           />
-          <button onClick={generateWithAmount}>
-            Generate with Amount
+          <button onClick={generateWithAmount} className="myqr-gen-btn">
+            Generate
           </button>
         </div>
       </div>

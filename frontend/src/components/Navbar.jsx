@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
+import "./Navbar.css";
 
 export default function Navbar() {
   const { logout } = useAuth();
@@ -10,133 +11,37 @@ export default function Navbar() {
     navigate("/login");
   };
 
+  const navStyle = ({ isActive }) =>
+    isActive ? "kp-nav__link kp-nav__link--active" : "kp-nav__link";
+
   return (
-    <header style={styles.header}>
-      <div style={styles.container}>
-        {/* LOGO */}
-        <div style={styles.logo}>
-          💳 <span>KoshPay</span>
+    <header className="kp-header">
+      <div className="kp-header__inner">
+
+        {/* Logo */}
+        <div className="kp-logo">
+          <span className="kp-logo__icon">💳</span>
+          <span className="kp-logo__text">KoshPay</span>
         </div>
 
-        {/* MENU */}
-        <nav style={styles.menu}>
-          <NavLink to="/dashboard" style={navStyle}>
-            Dashboard
-          </NavLink>
-
-          <NavLink to="/transfer" style={navStyle}>
-            Transfer
-          </NavLink>
-
-          <NavLink to="/transactions" style={navStyle}>
-            Transactions
-          </NavLink>
-
-          <NavLink to="/contacts" style={navStyle}>
-            Contacts
-          </NavLink>
-
-          <NavLink to="/my-qr" style={navStyle}>
-            My QR
-          </NavLink>
-
-          <NavLink to="/scan-qr" style={navStyle}>
-            Scan QR
-          </NavLink>
-
-          <NavLink
-            to="/scheduled-payments"
-            style={({ isActive }) =>
-              isActive ? styles.activeLink : styles.link
-            }
-          >
-            Schedule
-          </NavLink>
-
-          <NavLink to="/security" style={navStyle}>
-            Security
-          </NavLink>
+        {/* Nav links */}
+        <nav className="kp-nav">
+          <NavLink to="/dashboard"          className={navStyle}>Dashboard</NavLink>
+          <NavLink to="/transfer"           className={navStyle}>Transfer</NavLink>
+          <NavLink to="/transactions"       className={navStyle}>Transactions</NavLink>
+          <NavLink to="/contacts"           className={navStyle}>Contacts</NavLink>
+          <NavLink to="/my-qr"              className={navStyle}>My QR</NavLink>
+          <NavLink to="/scan-qr"            className={navStyle}>Scan QR</NavLink>
+          <NavLink to="/scheduled-payments" className={navStyle}>Schedule</NavLink>
+          <NavLink to="/security"           className={navStyle}>Security</NavLink>
         </nav>
 
-        {/* LOGOUT */}
-        <button onClick={handleLogout} style={styles.logoutBtn}>
+        {/* Logout */}
+        <button onClick={handleLogout} className="kp-logout-btn">
           Logout
         </button>
+
       </div>
     </header>
   );
 }
-
-const navStyle = ({ isActive }) =>
-  isActive ? styles.activeLink : styles.link;
-
-/* ===================== STYLES ===================== */
-
-const styles = {
-  header: {
-    background: "linear-gradient(90deg, #2563eb, #1e40af)",
-    boxShadow: "0 6px 20px rgba(0,0,0,0.18)",
-    position: "sticky",
-    top: 0,
-    zIndex: 100,
-  },
-
-  container: {
-    maxWidth: "1200px",
-    margin: "0 auto",
-    padding: "1rem 1.75rem",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    color: "#fff",
-  },
-
-  logo: {
-    fontSize: "1.45rem",
-    fontWeight: "700",
-    display: "flex",
-    alignItems: "center",
-    gap: "0.5rem",
-    letterSpacing: "0.5px",
-  },
-
-  menu: {
-    background: "rgba(255,255,255,0.15)",
-    borderRadius: "999px",
-    padding: "0.45rem",
-    display: "flex",
-    gap: "0.4rem",
-  },
-
-  link: {
-    color: "#e0e7ff",
-    textDecoration: "none",
-    padding: "0.45rem 1.15rem",
-    borderRadius: "999px",
-    fontSize: "0.9rem",
-    fontWeight: "500",
-    transition: "all 0.25s ease",
-  },
-
-  activeLink: {
-    background: "#ffffff",
-    color: "#1e3a8a",
-    textDecoration: "none",
-    padding: "0.45rem 1.15rem",
-    borderRadius: "999px",
-    fontSize: "0.9rem",
-    fontWeight: "600",
-  },
-
-  logoutBtn: {
-    background: "#ef4444",
-    color: "#fff",
-    border: "none",
-    padding: "0.5rem 1.1rem",
-    borderRadius: "10px",
-    fontSize: "0.85rem",
-    fontWeight: "600",
-    cursor: "pointer",
-    transition: "opacity 0.2s ease",
-  },
-};

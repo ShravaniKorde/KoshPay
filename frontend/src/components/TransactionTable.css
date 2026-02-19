@@ -1,0 +1,149 @@
+/* ── TransactionTable.css ───────────────────────────────────── */
+
+.tt-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  margin-top: 1.25rem;
+}
+
+.tt-scroll { overflow-x: auto; }
+
+/* ── Table base ──────────────────────────────────────────────── */
+.tt-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tt-table thead tr {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.tt-table th {
+  text-align: left;
+  padding: 0.9rem 1.2rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.tt-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s ease;
+}
+
+.tt-table tbody tr:last-child { border-bottom: none; }
+.tt-table tbody tr:hover { background: var(--bg-glass); }
+
+.tt-table td {
+  padding: 1rem 1.2rem;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+/* ── Type badge ──────────────────────────────────────────────── */
+.tt-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tt-type-badge.credit {
+  background: var(--green-bg);
+  color: var(--green);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.tt-type-badge.debit {
+  background: var(--red-bg);
+  color: var(--red);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+}
+
+/* ── UPI text ────────────────────────────────────────────────── */
+.tt-upi {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* ── Amount ──────────────────────────────────────────────────── */
+.tt-amount {
+  font-weight: 700;
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.tt-amount.credit { color: var(--green); }
+.tt-amount.debit  { color: var(--red); }
+
+/* ── Status badge ────────────────────────────────────────────── */
+.tt-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tt-status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tt-status-badge.SUCCESS  { background: var(--green-bg); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+.tt-status-badge.FAILED   { background: var(--red-bg);   color: var(--red);   border: 1px solid rgba(248,113,113,0.2); }
+.tt-status-badge.PENDING  { background: var(--blue-bg);  color: var(--blue);  border: 1px solid rgba(96,165,250,0.2); }
+.tt-status-badge.INITIATED{ background: rgba(245,200,66,0.1); color: var(--gold); border: 1px solid rgba(245,200,66,0.2); }
+
+/* ── Date ────────────────────────────────────────────────────── */
+.tt-date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* ── Empty state ─────────────────────────────────────────────── */
+.tt-empty {
+  padding: 3.5rem 2rem;
+  text-align: center;
+  background: var(--bg-card);
+  border: 1px dashed var(--border);
+  border-radius: var(--r-lg);
+  margin-top: 1.25rem;
+}
+
+.tt-empty__icon {
+  font-size: 2.2rem;
+  opacity: 0.3;
+  margin-bottom: 0.7rem;
+}
+
+.tt-empty__text {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
