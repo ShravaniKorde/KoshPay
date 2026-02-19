@@ -39,7 +39,9 @@ dependencies {
 	/* =========================
 	   DATABASE
 	========================= */
-	runtimeOnly 'com.mysql:mysql-connector-j'
+	//runtimeOnly 'com.mysql:mysql-connector-j'
+	// added postgres dependency for render deployment
+	runtimeOnly 'org.postgresql:postgresql'
 
 	/* =========================
 	   JWT (Spring Boot 3 compatible)
