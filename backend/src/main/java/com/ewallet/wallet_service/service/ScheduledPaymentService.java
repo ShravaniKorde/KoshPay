@@ -47,9 +47,15 @@ public class ScheduledPaymentService {
         payment.setAmount(amount);
         payment.setScheduledAt(scheduledAt);
 
+        // FIX: reset createdAt to now so the frontend progress bar calculates
+        // correctly relative to the new scheduledAt. Without this, createdAt stays
+        // at the original creation date — if you created a payment yesterday and
+        // edit it to fire in 5 minutes, createdAt is 24h old and the bar hits 100%
+        // instantly, making the countdown appear broken.
+        payment.setCreatedAt(Instant.now());
+
         return scheduledPaymentRepository.save(payment);
     }
-
 
     public ScheduledPayment createSchedule(
             String senderEmail,
@@ -99,12 +105,11 @@ public class ScheduledPaymentService {
             throw new RuntimeException("Already executed");
         }
 
+        // FAILED is intentional — TransactionStatus doesn't have a CANCELLED value.
+        // If you want a distinct grey badge later, add CANCELLED to the enum and
+        // update the CSS .sp-status.CANCELLED class accordingly.
         payment.setStatus(TransactionStatus.FAILED);
         payment.setFailureReason("Cancelled by user");
         scheduledPaymentRepository.save(payment);
     }
-
-    
-
-    
 }

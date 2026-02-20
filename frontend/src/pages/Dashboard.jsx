@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import api from "../api/axios";
 import BalanceCard from "../components/BalanceCard";
@@ -15,24 +15,45 @@ const QUICK_ACTIONS = [
   { icon: "🪙", label: "My QR",     to: "/my-qr" },
 ];
 
+const safeNum = (val) => {
+  const n = Number(val);
+  return isNaN(n) ? 0 : n;
+};
+
 export default function Dashboard() {
-  const [balance, setBalance]   = useState(0);
-  const [walletId, setWalletId] = useState(null);
-  const [loading, setLoading]   = useState(true);
+  const [balance, setBalance]     = useState(null); // FIX 1: null instead of 0 — avoids flashing ₹0 before data loads
+  const [walletId, setWalletId]   = useState(null);
+  const [loading, setLoading]     = useState(true);
   const [recentTxs, setRecentTxs] = useState([]);
 
   const prevBalance = useRef(0);
+  const balanceRef  = useRef(0);
 
+  // FIX 2: fetchTransactions accepts an optional delay (ms)
+  // After a WebSocket balance update, the backend may not have committed
+  // the transaction record yet. We wait 1.5s before fetching so the DB
+  // write finishes and we actually see the new transaction row.
+  const fetchTransactions = useCallback(async (delayMs = 0) => {
+    try {
+      if (delayMs > 0) await new Promise((r) => setTimeout(r, delayMs));
+      const txRes = await api.get("/wallet/transactions");
+      setRecentTxs(txRes.data.slice(0, 5));
+    } catch (err) {
+      console.error("Failed to refresh transactions", err);
+    }
+  }, []);
+
+  // Initial load
   useEffect(() => {
     const loadDashboard = async () => {
       try {
         const balanceRes = await api.get("/wallet/balance");
-        setBalance(balanceRes.data.balance);
+        const bal = safeNum(balanceRes.data.balance);
+        prevBalance.current = bal;
+        balanceRef.current  = bal;
+        setBalance(bal);
         setWalletId(balanceRes.data.walletId);
-        prevBalance.current = balanceRes.data.balance;
-
-        const txRes = await api.get("/wallet/transactions");
-        setRecentTxs(txRes.data.slice(0, 5));
+        await fetchTransactions();
       } catch (err) {
         console.error("Dashboard load failed", err);
       } finally {
@@ -40,24 +61,40 @@ export default function Dashboard() {
       }
     };
     loadDashboard();
-  }, []);
+  }, [fetchTransactions]);
 
+  // Poll every 30s — catches scheduled payment executions
+  useEffect(() => {
+    const interval = setInterval(() => fetchTransactions(), 30000);
+    return () => clearInterval(interval);
+  }, [fetchTransactions]);
+
+  // WebSocket — only depends on walletId
   useEffect(() => {
     if (!walletId) return;
-    connectBalanceSocket(walletId, (newBalance) => {
-      prevBalance.current = balance;
-      setBalance(newBalance);
-    });
-    return () => disconnectBalanceSocket();
-  }, [walletId, balance]);
 
-  const totalSent = recentTxs
-    .filter((t) => t.type === "DEBIT" && t.status === "SUCCESS")
-    .reduce((s, t) => s + t.amount, 0);
+    connectBalanceSocket(walletId, (newBalance) => {
+      const bal = safeNum(newBalance);
+      prevBalance.current = balanceRef.current;
+      balanceRef.current  = bal;
+      setBalance(bal);
+      // FIX 2 in action: delay 1500ms so backend finishes writing the tx row
+      fetchTransactions(1500);
+    });
+
+    return () => disconnectBalanceSocket();
+  }, [walletId, fetchTransactions]);
+
+  // Derived stats — guard against null balance during first load
+  const displayBalance = balance ?? 0;
 
   const totalReceived = recentTxs
     .filter((t) => t.type === "CREDIT" && t.status === "SUCCESS")
-    .reduce((s, t) => s + t.amount, 0);
+    .reduce((s, t) => s + safeNum(t.amount), 0);
+
+  const totalSent = recentTxs
+    .filter((t) => t.type === "DEBIT" && t.status === "SUCCESS")
+    .reduce((s, t) => s + safeNum(t.amount), 0);
 
   if (loading) {
     return (
@@ -75,7 +112,6 @@ export default function Dashboard() {
     <div className="page-center">
       <div className="dash-wrapper">
 
-        {/* Header */}
         <div className="dash-header fade-up fade-up-1">
           <h1 className="dash-title">Dashboard</h1>
           <p className="dash-subtitle">
@@ -84,10 +120,9 @@ export default function Dashboard() {
           </p>
         </div>
 
-        {/* Balance Card */}
-        <BalanceCard balance={balance} prevBalance={prevBalance.current} />
+        {/* FIX 1: pass displayBalance so BalanceCard never gets null */}
+        <BalanceCard balance={displayBalance} prevBalance={prevBalance.current} />
 
-        {/* Stats */}
         <div className="dash-stats fade-up fade-up-3">
           <div className="dash-stat">
             <div className="dash-stat__value" style={{ color: "var(--green)" }}>
@@ -107,7 +142,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Quick Actions */}
         <div className="fade-up fade-up-4">
           <div className="dash-section-label">Quick Actions</div>
           <div className="dash-quick-actions">
@@ -120,7 +154,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Recent Transactions */}
         <div className="dash-recent fade-up fade-up-5">
           <div className="dash-recent__heading">🧾 Recent Transactions</div>
 
@@ -151,7 +184,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <div className={`dash-tx-amount ${isDebit ? "debit" : "credit"}`}>
-                    {isDebit ? "−" : "+"}₹{tx.amount.toLocaleString("en-IN")}
+                    {isDebit ? "−" : "+"}₹{safeNum(tx.amount).toLocaleString("en-IN")}
                   </div>
                 </div>
               );
@@ -159,10 +192,9 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Live hint */}
         <div className="dash-hint fade-up">
           <span className="live-dot" />
-          Live balance updates enabled
+          Live · auto-refreshes every 30s
         </div>
 
       </div>

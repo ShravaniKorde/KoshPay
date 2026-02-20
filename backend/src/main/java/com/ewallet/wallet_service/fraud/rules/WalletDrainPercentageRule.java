@@ -32,6 +32,6 @@ public class WalletDrainPercentageRule implements FraudRule {
 
     @Override
     public int riskPoints() {
-        return 80; // medium-high risk
+        return 40; // medium-high risk
     }
 }
