@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import './UpdatePin.css';
+import api from '../api/axios';
 
 const UpdatePin = () => {
   const [newPin, setNewPin] = useState('');
@@ -18,11 +17,8 @@ const UpdatePin = () => {
 
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.post(
-        `http://localhost:8080/api/upi/update-pin?pin=${newPin}`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
+      const response = await api.post(
+        `/upi/update-pin?pin=${newPin}`
       );
 
       setMessage({ text: response.data, type: 'success' });
