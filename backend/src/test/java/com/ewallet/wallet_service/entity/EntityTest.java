@@ -1,41 +1,66 @@
-package com.ewallet.wallet_service.entity;
+package com.ewallet.wallet_service;
 
+import com.ewallet.wallet_service.entity.*;
 import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class EntityTest {
 
     @Test
-    void testUserAndWalletEntities() {
-        User user = new User();
-        user.setId(1L);
-        user.setEmail("test@test.com");
-        user.setPassword("password");
-        
-        Wallet wallet = new Wallet();
-        wallet.setId(10L);
-        wallet.setUser(user);
-        wallet.setBalance(new BigDecimal("500.00"));
-        
-        assertEquals(1L, user.getId());
-        assertEquals("test@test.com", user.getEmail());
-        assertEquals("password", user.getPassword());
-        
-        assertEquals(10L, wallet.getId());
-        assertEquals(new BigDecimal("500.00"), wallet.getBalance());
-        assertEquals(user, wallet.getUser());
-    }
+    void testEntities() {
+        Admin admin = new Admin();
+        admin.setEmail("admin@koshpay.com");
+        admin.setPassword("hash");
+        assertNotNull(admin.getCreatedAt());
+        assertEquals("admin@koshpay.com", admin.getEmail());
 
-    @Test
-    void testAuditLogEntityMinimal() {
         AuditLog log = new AuditLog();
-        log.setStatus("SUCCESS");
-        log.setTimestamp(LocalDateTime.now());
-        
-        assertEquals("SUCCESS", log.getStatus());
+        log.setActionType("TRANSFER");
+        log.setOldBalance(BigDecimal.ONE);
+        log.setNewBalance(BigDecimal.ZERO);
         assertNotNull(log.getTimestamp());
+
+        User user = new User();
+        user.setName("John");
+        user.setTransactionPin("1234");
+        user.setOtpExpiry(LocalDateTime.now());
+        assertEquals("John", user.getName());
+
+        Wallet wallet = new Wallet();
+        wallet.setUser(user);
+        wallet.setBalance(BigDecimal.valueOf(1000));
+        assertEquals(BigDecimal.valueOf(1000), wallet.getBalance());
+
+        VirtualPaymentAddress vpa = new VirtualPaymentAddress();
+        vpa.setUpiId("john@koshpay");
+        vpa.setUser(user);
+        vpa.setActive(true);
+        assertTrue(vpa.isActive());
+
+        Contact contact = new Contact();
+        contact.setOwner(user);
+        contact.setDisplayName("Friend");
+        contact.setUpiId("friend@upi");
+        assertEquals("friend@upi", contact.getUpiId());
+
+        Transaction tx = new Transaction();
+        tx.setFromWallet(wallet);
+        tx.setAmount(BigDecimal.TEN);
+        tx.setStatus(TransactionStatus.SUCCESS);
+        tx.setTimestamp(Instant.now());
+        assertEquals(TransactionStatus.SUCCESS, tx.getStatus());
+
+        ScheduledPayment sp = new ScheduledPayment();
+        sp.setAmount(BigDecimal.valueOf(50));
+        sp.setSender(user);
+        sp.setReceiver(vpa);
+        sp.setExecuted(false);
+        assertFalse(sp.isExecuted());
+        
+        assertNotNull(TransactionStatus.valueOf("PENDING"));
     }
 }

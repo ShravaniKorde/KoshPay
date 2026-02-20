@@ -1,67 +1,67 @@
 package com.ewallet.wallet_service.security;
 
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.MockitoAnnotations;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
 class JwtFilterTest {
 
     @Mock private JwtUtil jwtUtil;
     @Mock private HttpServletRequest request;
     @Mock private HttpServletResponse response;
     @Mock private FilterChain filterChain;
+    @Mock private SecurityContext securityContext;
 
-    @InjectMocks
-    private JwtFilter jwtFilter;
+    @InjectMocks private JwtFilter jwtFilter;
 
-    @Test
-    void doFilterInternal_NoHeader_Proceeds() throws ServletException, IOException {
-        when(request.getHeader("Authorization")).thenReturn(null);
-        
-        jwtFilter.doFilterInternal(request, response, filterChain);
-        
-        verify(filterChain).doFilter(request, response);
-        assertNull(SecurityContextHolder.getContext().getAuthentication());
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        SecurityContextHolder.setContext(securityContext);
     }
 
     @Test
-    void doFilterInternal_InvalidPrefix_Proceeds() throws ServletException, IOException {
-        when(request.getHeader("Authorization")).thenReturn("Basic 12345");
-        
+    void testOptionsRequest_Bypass() throws Exception {
+        when(request.getMethod()).thenReturn("OPTIONS");
         jwtFilter.doFilterInternal(request, response, filterChain);
-        
         verify(filterChain).doFilter(request, response);
-        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     @Test
-    void doFilterInternal_ValidToken_SetsAuthentication() throws ServletException, IOException {
-        String token = "valid_token";
-        String email = "test@example.com";
-        
+    void testValidToken_SetsAuthentication() throws Exception {
+        String token = "good_token";
+        when(request.getMethod()).thenReturn("GET");
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
         when(jwtUtil.isTokenValid(token)).thenReturn(true);
-        when(jwtUtil.extractEmail(token)).thenReturn(email);
+        when(jwtUtil.extractEmail(token)).thenReturn("user@test.com");
+        when(jwtUtil.extractRole(token)).thenReturn("ROLE_USER");
 
         jwtFilter.doFilterInternal(request, response, filterChain);
 
         verify(filterChain).doFilter(request, response);
-        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-        
-        SecurityContextHolder.clearContext(); 
+        verify(securityContext).setAuthentication(any());
+    }
+
+    @Test
+    void testInvalidToken_NoAuthentication() throws Exception {
+        String token = "bad_token";
+        when(request.getMethod()).thenReturn("GET");
+        when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
+        when(jwtUtil.isTokenValid(token)).thenReturn(false);
+
+        jwtFilter.doFilterInternal(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        verify(securityContext, never()).setAuthentication(any());
     }
 }
