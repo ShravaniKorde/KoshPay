@@ -1,25 +1,57 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import api from "../api/axios";
 import { toast } from "../components/Toast";
 import "./ScheduledPayments.css";
 
+// FIX 3: Poll fast (5s) when there are PENDING payments, slow (30s) otherwise.
+// This is why "Executing..." gets stuck — the frontend only polled every 30s,
+// so after execution it could take up to 30s to see SUCCESS status.
+const POLL_FAST = 5_000;
+const POLL_SLOW = 30_000;
+
 export default function ScheduledPayments() {
-  const [upiId, setUpiId]       = useState("");
-  const [amount, setAmount]     = useState("");
-  const [dateTime, setDateTime] = useState("");
-  const [loading, setLoading]   = useState(false);
+  const [upiId, setUpiId]         = useState("");
+  const [amount, setAmount]       = useState("");
+  const [dateTime, setDateTime]   = useState("");
+  const [loading, setLoading]     = useState(false);
   const [schedules, setSchedules] = useState([]);
   const [editingId, setEditingId] = useState(null);
-  const [now, setNow]           = useState(Date.now());
+  const [now, setNow]             = useState(Date.now());
 
-  const loadSchedules = async () => {
+  // FIX 3: track the polling interval ref so we can swap speed dynamically
+  const pollRef = useRef(null);
+
+  const loadSchedules = useCallback(async () => {
     try {
       const res = await api.get("/scheduled-payments");
       setSchedules(res.data);
-    } catch { console.error("Failed to load schedules"); }
-  };
+    } catch {
+      console.error("Failed to load schedules");
+    }
+  }, []);
 
-  useEffect(() => { loadSchedules(); }, []);
+  // FIX 3: decide polling speed based on whether any PENDING payment is due soon
+  // "due soon" = scheduledAt is in the past or within 60s
+  const getHasPendingDue = useCallback((list) => {
+    const threshold = Date.now() + 60_000;
+    return list.some(
+      (s) => s.status === "PENDING" && !s.executed && new Date(s.scheduledAt).getTime() <= threshold
+    );
+  }, []);
+
+  // FIX 3: restart the polling interval with the correct speed whenever schedules change
+  useEffect(() => {
+    const hasPendingDue = getHasPendingDue(schedules);
+    const interval = hasPendingDue ? POLL_FAST : POLL_SLOW;
+
+    if (pollRef.current) clearInterval(pollRef.current);
+    pollRef.current = setInterval(loadSchedules, interval);
+
+    return () => clearInterval(pollRef.current);
+  }, [schedules, loadSchedules, getHasPendingDue]);
+
+  // Initial load
+  useEffect(() => { loadSchedules(); }, [loadSchedules]);
 
   // Tick every second for countdown + progress bar
   useEffect(() => {
@@ -87,12 +119,25 @@ export default function ScheduledPayments() {
     return `${d}d ${h}h ${m}m ${s}s`;
   };
 
-  // Progress: % elapsed from creation toward scheduled time
+  // FIX 4: getProgress was broken after Edit because:
+  //   - after a PUT, the backend may reset createdAt OR return the same old createdAt
+  //   - if createdAt was missing/null the fallback was (scheduledAt - 24h)
+  //     which could put "start" AFTER "now", making progress = 0% always
+  // Solution: always calculate progress relative to the current moment vs scheduledAt.
+  // We show how close we are to the deadline, which is the meaningful metric anyway.
   const getProgress = (item) => {
-    const end   = new Date(item.scheduledAt).getTime();
-    const start = item.createdAt
-      ? new Date(item.createdAt).getTime()
-      : end - 24 * 60 * 60 * 1000;
+    const end = new Date(item.scheduledAt).getTime();
+    // Use createdAt if available and sane, otherwise fall back to "now - 5 min"
+    // so the bar is never stuck at 0% after an edit.
+    let start;
+    if (item.createdAt) {
+      const raw = new Date(item.createdAt).getTime();
+      // sanity: createdAt must be before scheduledAt
+      start = raw < end ? raw : end - 5 * 60 * 1000;
+    } else {
+      // FIX 4: fallback — use 5 min before now so bar shows meaningful progress
+      start = now - 5 * 60 * 1000;
+    }
     const total   = end - start;
     const elapsed = now - start;
     if (total <= 0) return 100;
@@ -150,7 +195,7 @@ export default function ScheduledPayments() {
                 </div>
                 <div className="sp-card__date">{formatDate(item.scheduledAt)}</div>
 
-                {/* Progress bar — only for PENDING */}
+                {/* FIX 3 visible result: progress bar & countdown update every 5s near due time */}
                 {isPending && (
                   <div className="sp-progress-wrap">
                     <div className="sp-progress-bar">

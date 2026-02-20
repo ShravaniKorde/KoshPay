@@ -305,3 +305,44 @@
   .txns-filters { gap: 0.85rem; }
   .txns-filter-pills { flex-wrap: wrap; }
 }
+
+/* ── Export button (added for CSV feature) ───────────────────── */
+.txns-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+
+.txns-export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.52rem 1.1rem;
+  border: 1px solid var(--border-gold);
+  border-radius: var(--r-sm);
+  background: var(--gold-dim);
+  color: var(--gold);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.txns-export-btn:hover {
+  background: rgba(245,200,66,0.2);
+  border-color: rgba(245,200,66,0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(245,200,66,0.2);
+}
+
+.txns-export-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
