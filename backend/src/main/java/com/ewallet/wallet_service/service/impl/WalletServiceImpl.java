@@ -130,6 +130,10 @@ public class WalletServiceImpl implements WalletService {
         public Object transfer(Long toWalletId, BigDecimal amount, String pin, String otp) {
                 Wallet sender = getCurrentUserWallet();
                 User user = sender.getUser();
+        log.debug("Transfer request received. fromWallet={}, toWallet={}, amount={}",
+                sender.getId(),
+                toWalletId,
+                amount);
 
         // 1. PIN VERIFICATION
         if (user.getTransactionPin() == null || !passwordEncoder.matches(pin, user.getTransactionPin())) {
@@ -146,6 +150,10 @@ public class WalletServiceImpl implements WalletService {
         // --- NEW POSITION FOR BALANCE CHECK ---
     // Check balance BEFORE doing Fraud/OTP checks
     if (sender.getBalance().compareTo(amount) < 0) {
+            log.warn("Insufficient balance attempt. userId={}, balance={}, attemptedAmount={}",
+                sender.getUser().getId(),
+                sender.getBalance(),
+                amount);
         throw new InsufficientBalanceException("Insufficient balance. Current: ₹" + sender.getBalance());
     }
         Wallet receiver = walletRepository.findById(toWalletId)
@@ -165,6 +173,10 @@ public class WalletServiceImpl implements WalletService {
         fraudContext.setTransactionTime(LocalDateTime.now());
 
         FraudResult fraudResult = fraudDetectionService.evaluate(fraudContext);
+        
+        log.debug("Fraud evaluation result. riskScore={}, decision={}",
+        fraudResult.getRiskScore(),
+        fraudResult.getDecision());
 
         if (fraudResult.getDecision() == FraudDecision.BLOCK) {
 
@@ -188,13 +200,21 @@ public class WalletServiceImpl implements WalletService {
 
         // 4. OTP AUTHORIZATION (Challenge Gate)
         // Only ask for OTP if Risk > 50 OR amount is high
-        if (fraudResult.getRiskScore() > 50 || amount.compareTo(new BigDecimal("1000")) > 0) {
+        if (fraudResult.getRiskScore() > 30 || amount.compareTo(new BigDecimal("1000")) > 0) {
+            log.warn("Medium risk transaction detected. userId={}, riskScore={}, amount={}",
+                user.getId(),
+                fraudResult.getRiskScore(),
+                amount);    
+
             if (otp == null || otp.isEmpty()) {
                 String generatedOtp = otpService.generateAndReturnOtp(user); 
                 return new OtpResponse("OTP_REQUIRED", "Please verify using this code", generatedOtp);
             }
 
             if (!otpService.validateOtp(user, otp)) {
+                log.warn("Invalid OTP attempt. userId={}, amount={}",
+                        user.getId(),
+                        amount);
                 throw new IllegalArgumentException("Invalid or expired OTP");
             }
         }
@@ -245,6 +265,11 @@ public class WalletServiceImpl implements WalletService {
 
         } catch (Exception e) {
             // HIGHLIGHT: 6. FAILED (Catch-all for any errors)
+            log.warn("Transaction failed. fromWallet={}, toWallet={}, amount={}, reason={}",
+                sender.getId(),
+                toWalletId,
+                amount,
+                e.getMessage());
             statusService.updateStatus(tx, TransactionStatus.FAILED);
             auditLogService.log(sender.getUser(), "TRANSFER", "FAILURE", senderOldBal, senderOldBal);
             throw e; // Rethrow to trigger rollback of balance changes
@@ -262,6 +287,7 @@ public class WalletServiceImpl implements WalletService {
 
         // Validation: Ensure it's numeric and 4 digits
         if (newPin == null || !newPin.matches("\\d{4}")) {
+            log.warn("Invalid PIN update attempt. user={}", email);
             throw new IllegalArgumentException("PIN must be exactly 4 numeric digits");
         }
 
