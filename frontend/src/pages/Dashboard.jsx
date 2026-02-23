@@ -116,7 +116,7 @@ export default function Dashboard() {
           <h1 className="dash-title">Dashboard</h1>
           <p className="dash-subtitle">
             <span className="live-dot" />
-            Real-time balance synced via WebSocket
+            Real-Time Balance
           </p>
         </div>
 
