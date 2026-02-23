@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import api from '../api/axios';
+import api from '../api/axios';   // ← use shared instance, not raw axios
+import './UpdatePin.css';
 
 const UpdatePin = () => {
-  const [newPin, setNewPin] = useState('');
+  const [newPin, setNewPin]   = useState('');
   const [message, setMessage] = useState({ text: '', type: '' });
   const [loading, setLoading] = useState(false);
 
   const handleUpdatePin = async (e) => {
     e.preventDefault();
 
-    // Frontend validation: 4-digit check
     if (!/^\d{4}$/.test(newPin)) {
       setMessage({ text: 'PIN must be exactly 4 digits.', type: 'error' });
       return;
@@ -17,10 +17,7 @@ const UpdatePin = () => {
 
     setLoading(true);
     try {
-      const response = await api.post(
-        `/upi/update-pin?pin=${newPin}`
-      );
-
+      const response = await api.post(`/upi/update-pin?pin=${newPin}`, {});
       setMessage({ text: response.data, type: 'success' });
       setNewPin('');
     } catch (err) {
