@@ -1,6 +1,10 @@
 FROM eclipse-temurin:21-jdk-jammy AS build
 WORKDIR /app
 COPY . .
+
+# Gives executable permission
+RUN chmod +x gradlew 
+
 RUN ./gradlew clean build -x test
 
 FROM eclipse-temurin:21-jre-jammy

@@ -4,28 +4,32 @@ import com.ewallet.wallet_service.entity.AuditLog;
 import com.ewallet.wallet_service.entity.User;
 import com.ewallet.wallet_service.repository.AuditLogRepository;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.Mockito;
 import java.math.BigDecimal;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 class AuditLogServiceTest {
-
-    @Mock private AuditLogRepository auditLogRepository;
-    @InjectMocks private AuditLogService auditLogService;
+    private final AuditLogRepository repository = mock(AuditLogRepository.class);
+    private final AuditLogService service = new AuditLogService(repository);
 
     @Test
-    void testLog_SavesToRepository() {
+    void testLogWithUser() {
         User user = new User();
         user.setId(1L);
-        
-        // Matches your actual signature: User, String, String, BigDecimal, BigDecimal
-        auditLogService.log(user, "TRANSFER", "SUCCESS", BigDecimal.ZERO, BigDecimal.ZERO);
-        
-        verify(auditLogRepository).save(any(AuditLog.class));
+        user.setEmail("test@koshpay.com");
+        service.log(user, "LOGIN", "SUCCESS", BigDecimal.ZERO, BigDecimal.ZERO);
+        verify(repository).save(any(AuditLog.class));
+    }
+
+    @Test
+    void testLogWithNullUser() {
+        service.log(null, "LOGIN", "SUCCESS", BigDecimal.ZERO, BigDecimal.ZERO);
+        verify(repository).save(any(AuditLog.class));
+    }
+
+    @Test
+    void testLogExceptionHandling() {
+        doThrow(new RuntimeException("DB Down")).when(repository).save(any());
+        service.log(null, "LOGIN", "SUCCESS", BigDecimal.ZERO, BigDecimal.ZERO);
     }
 }
