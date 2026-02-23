@@ -60,4 +60,20 @@ class ContactServiceTest {
         assertDoesNotThrow(() -> contactService.deleteContact(10L));
         verify(contactRepository).delete(any());
     }
+
+   @Test
+    void testAddContact() {
+        ContactCreateRequest req = new ContactCreateRequest();
+        req.setUpiId("friend@koshpay");
+
+        VirtualPaymentAddress friendVpa = new VirtualPaymentAddress();
+        User friend = new User();
+        friend.setId(2L);
+        friendVpa.setUser(friend);
+
+        when(vpaRepository.findByUpiId("friend@koshpay")).thenReturn(Optional.of(friendVpa));
+
+        contactService.createContact(req);
+        verify(contactRepository).save(any());
+    }
 }
