@@ -9,8 +9,8 @@ const STATUS_DOT = {
 };
 
 export default function AuditLogs() {
-  const [logs, setLogs]             = useState([]);
-  const [searchUser, setSearchUser] = useState("");
+  const [logs, setLogs]                 = useState([]);
+  const [searchUser, setSearchUser]     = useState("");
   const [actionFilter, setActionFilter] = useState("");
 
   useEffect(() => {
@@ -74,7 +74,7 @@ export default function AuditLogs() {
                 <th>Status</th>
                 <th>Old Balance</th>
                 <th>New Balance</th>
-                <th>Timestamp</th>
+                <th>Timestamp (IST)</th>
               </tr>
             </thead>
             <tbody>
@@ -96,20 +96,30 @@ export default function AuditLogs() {
                     </td>
                     <td>
                       <span className={`al-badge ${log.status.toLowerCase()}`}>
-                        <span className="dot" style={{ background: STATUS_DOT[log.status] || "#94a3b8" }} />
+                        <span
+                          className="dot"
+                          style={{ background: STATUS_DOT[log.status] || "#94a3b8" }}
+                        />
                         {log.status}
                       </span>
                     </td>
                     <td className="al-balance">
-                      {log.oldBalance != null ? `₹${Number(log.oldBalance).toLocaleString("en-IN")}` : "—"}
+                      {log.oldBalance != null
+                        ? `₹${Number(log.oldBalance).toLocaleString("en-IN")}`
+                        : "—"}
                     </td>
                     <td className="al-balance">
-                      {log.newBalance != null ? `₹${Number(log.newBalance).toLocaleString("en-IN")}` : "—"}
+                      {log.newBalance != null
+                        ? `₹${Number(log.newBalance).toLocaleString("en-IN")}`
+                        : "—"}
                     </td>
                     <td className="al-date">
                       {new Date(log.timestamp).toLocaleString("en-IN", {
-                        day: "2-digit", month: "short",
-                        hour: "2-digit", minute: "2-digit",
+                        day:      "2-digit",
+                        month:    "short",
+                        hour:     "2-digit",
+                        minute:   "2-digit",
+                        timeZone: "Asia/Kolkata",   // ← force IST always
                       })}
                     </td>
                   </tr>
