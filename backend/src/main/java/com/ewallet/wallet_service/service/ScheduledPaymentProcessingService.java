@@ -101,11 +101,13 @@ public void executeSinglePayment(ScheduledPayment payment) {
             statusService.updateStatus(tx, TransactionStatus.FAILED);
         }
 
-        auditLogService.log(payment.getSender(), "SCHEDULED_TRANSFER", "FAILED",
-                null, null);
+        //auditLogService.log(payment.getSender(), "SCHEDULED_TRANSFER", "FAILED",
+          //      null, null);
 
         payment.setStatus(TransactionStatus.FAILED);
         payment.setFailureReason(e.getMessage());
+        payment.setExecuted(true);  
+        payment.setExecutedAt(Instant.now());
     }
 
     scheduledPaymentRepository.save(payment);

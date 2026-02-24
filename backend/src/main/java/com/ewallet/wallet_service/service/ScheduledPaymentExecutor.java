@@ -2,6 +2,7 @@ package com.ewallet.wallet_service.service;
 
 import com.ewallet.wallet_service.entity.ScheduledPayment;
 import com.ewallet.wallet_service.repository.ScheduledPaymentRepository;
+import com.ewallet.wallet_service.entity.TransactionStatus;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +29,7 @@ public class ScheduledPaymentExecutor {
 
         List<ScheduledPayment> pendingPayments =
                 scheduledPaymentRepository
-                        .findPendingPayments(Instant.now());
+                        .findPendingPayments(Instant.now(),  TransactionStatus.PENDING);
 
         if (!pendingPayments.isEmpty()) {
             log.info("Processing {} scheduled payment(s)", pendingPayments.size());

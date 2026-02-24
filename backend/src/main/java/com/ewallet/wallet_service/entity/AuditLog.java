@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "audit_logs")
@@ -37,5 +37,5 @@ public class AuditLog {
     private BigDecimal newBalance;
 
     @Column(nullable = false)
-    private LocalDateTime timestamp = LocalDateTime.now();
+    private Instant timestamp;
 }

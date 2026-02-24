@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.Instant;
 
 import java.math.BigDecimal;
 
@@ -47,6 +48,7 @@ public class AuditLogService {
             audit.setStatus(status);
             audit.setOldBalance(oldBal);
             audit.setNewBalance(newBal);
+            audit.setTimestamp(Instant.now());
 
             auditLogRepository.save(audit);
 

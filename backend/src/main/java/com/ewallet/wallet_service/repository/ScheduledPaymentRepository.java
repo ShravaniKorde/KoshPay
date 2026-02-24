@@ -19,9 +19,13 @@ public interface ScheduledPaymentRepository
     JOIN FETCH sp.sender
     JOIN FETCH sp.receiver
     WHERE sp.executed = false
+    AND sp.status = :status
     AND sp.scheduledAt <= :time
     """)
-    List<ScheduledPayment> findPendingPayments(@Param("time") Instant time);
+    List<ScheduledPayment> findPendingPayments(
+        @Param("time") Instant time,
+        @Param("status") TransactionStatus status
+);
 
     // Fetch user’s scheduled payments
     List<ScheduledPayment> 
