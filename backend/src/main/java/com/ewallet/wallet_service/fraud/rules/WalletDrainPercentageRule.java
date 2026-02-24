@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class WalletDrainPercentageRule implements FraudRule {
 
     private static final BigDecimal THRESHOLD_PERCENT =
-            new BigDecimal("0.80"); // 75%
+            new BigDecimal("0.80"); // 80%
 
     @Override
     public boolean isTriggered(FraudContext context) {

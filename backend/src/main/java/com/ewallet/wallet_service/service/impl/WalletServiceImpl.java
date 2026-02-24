@@ -171,6 +171,7 @@ public class WalletServiceImpl implements WalletService {
         );
         fraudContext.setUserId(sender.getUser().getId());
         fraudContext.setTransactionTime(LocalDateTime.now());
+        fraudContext.setCurrentBalance(sender.getBalance());
 
         FraudResult fraudResult = fraudDetectionService.evaluate(fraudContext);
         
