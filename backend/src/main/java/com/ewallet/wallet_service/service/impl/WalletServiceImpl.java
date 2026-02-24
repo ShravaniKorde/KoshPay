@@ -199,7 +199,7 @@ public class WalletServiceImpl implements WalletService {
         }
 
         // 4. OTP AUTHORIZATION (Challenge Gate)
-        // Only ask for OTP if Risk > 50 OR amount is high
+        // Only ask for OTP if Risk > 30 OR amount is high
         if (fraudResult.getRiskScore() > 30 || amount.compareTo(new BigDecimal("1000")) > 0) {
             log.warn("Medium risk transaction detected. userId={}, riskScore={}, amount={}",
                 user.getId(),
