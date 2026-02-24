@@ -178,6 +178,30 @@ public class WalletServiceImpl implements WalletService {
         fraudResult.getRiskScore(),
         fraudResult.getDecision());
 
+        // =============================
+        // FRAUD AUDIT LOG (ALWAYS IF RULES TRIGGERED)
+        // =============================
+        if (fraudResult.getTriggeredRules() != null &&
+        !fraudResult.getTriggeredRules().isEmpty()) {
+
+        String fraudMessage = String.format(
+                "RISK=%d, RULES=%s",
+                fraudResult.getRiskScore(),
+                String.join(",", fraudResult.getTriggeredRules())
+        );
+
+        auditLogService.log(
+                sender.getUser(),
+                "FRAUD_CHECK",
+                fraudMessage,
+                senderOldBal,
+                senderOldBal
+        );
+        }
+
+        // =============================
+        // BLOCK IF HIGH RISK
+        // =============================
         if (fraudResult.getDecision() == FraudDecision.BLOCK) {
 
         log.warn(

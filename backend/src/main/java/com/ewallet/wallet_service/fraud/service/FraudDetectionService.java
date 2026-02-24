@@ -22,15 +22,17 @@ public class FraudDetectionService {
     public FraudResult evaluate(FraudContext context) {
 
         int score = 0;
+        List<String> triggeredRules = new java.util.ArrayList<>();
 
         for (FraudRule rule : rules) {
             if (rule.isTriggered(context)) {
                 score += rule.riskPoints();
+                triggeredRules.add(rule.getClass().getSimpleName());
             }
         }
 
         FraudDecision decision = (score >= 70) ? FraudDecision.BLOCK : FraudDecision.ALLOW;
 
-        return new FraudResult(score, decision);
+        return new FraudResult(score, decision, triggeredRules);
     }
 }
