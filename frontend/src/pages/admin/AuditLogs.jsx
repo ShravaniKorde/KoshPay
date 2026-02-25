@@ -115,13 +115,13 @@ export default function AuditLogs() {
                     </td>
                     <td className="al-date">
                       {log.timestamp
-                        ? new Date(log.timestamp + "Z").toLocaleString("en-IN", {
-                        day: "2-digit",
-                        month: "short",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: true,
-                        timeZone: "Asia/Kolkata"
+                      ? new Date(log.timestamp).toLocaleString("en-IN", { 
+                      day: "2-digit",
+                      month: "short",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true,
+                      timeZone: "Asia/Kolkata"
                       })
                       : "—"}
                     </td>
