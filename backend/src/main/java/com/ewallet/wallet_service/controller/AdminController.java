@@ -12,6 +12,7 @@ import com.ewallet.wallet_service.service.AdminAnalyticsService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,25 +29,31 @@ public class AdminController {
     private final VirtualPaymentAddressRepository vpaRepository;
 
     // =====================================================
-    // SUMMARY
+    // DASHBOARD SUMMARY
+    // SUPER_ADMIN only — it's the overview/home tab
     // =====================================================
     @GetMapping("/summary")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<AdminSummaryResponse> getSummary() {
         return ResponseEntity.ok(analyticsService.getSummary());
     }
 
     // =====================================================
-    // STATUS DISTRIBUTION (Lifecycle States)
+    // ANALYTICS — status distribution chart
+    // SUPER_ADMIN + ANALYTICS role
     // =====================================================
     @GetMapping("/status-distribution")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ANALYTICS')")
     public ResponseEntity<TransactionStatusDistributionResponse> getStatusDistribution() {
         return ResponseEntity.ok(analyticsService.getStatusDistribution());
     }
 
     // =====================================================
-    // ALL TRANSACTIONS (RETURNING UPI IDs)
+    // TRANSACTIONS
+    // SUPER_ADMIN + TRANSACTIONS role
     // =====================================================
     @GetMapping("/transactions")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'TRANSACTIONS')")
     @Transactional(readOnly = true)
     public ResponseEntity<List<AdminTransactionResponse>> getAllTransactions() {
 
@@ -55,7 +62,7 @@ public class AdminController {
         List<AdminTransactionResponse> result = transactions.stream().map(tx -> {
 
             Long fromUserId = tx.getFromWallet().getUser().getId();
-            Long toUserId = tx.getToWallet().getUser().getId();
+            Long toUserId   = tx.getToWallet().getUser().getId();
 
             String fromUpi = vpaRepository.findByUserId(fromUserId)
                     .map(vpa -> vpa.getUpiId())
@@ -80,11 +87,12 @@ public class AdminController {
     }
 
     // =====================================================
-    // AUDIT LOGS (NO BALANCE EXPOSURE IN UI LAYER)
+    // AUDIT LOGS
+    // SUPER_ADMIN + AUDIT_LOGS role
     // =====================================================
     @GetMapping("/audit-logs")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'AUDIT_LOGS')")
     public ResponseEntity<List<AuditLog>> getAuditLogs() {
         return ResponseEntity.ok(auditLogRepository.findAll());
     }
-
 }

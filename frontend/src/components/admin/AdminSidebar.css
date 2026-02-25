@@ -125,3 +125,17 @@
   border-color: rgba(248,113,113,0.45);
   transform: translateY(-1px);
 }
+
+.as-role-badge {
+  margin: 0 1rem 1.25rem 1rem;
+  padding: 0.35rem 0.75rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+  text-align: center;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}

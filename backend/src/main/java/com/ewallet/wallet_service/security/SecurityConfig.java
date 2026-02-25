@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -11,6 +12,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @RequiredArgsConstructor
+@EnableMethodSecurity   // enables @PreAuthorize on controller methods
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
@@ -27,9 +29,9 @@ public class SecurityConfig {
 
             .authorizeHttpRequests(auth -> auth
 
-                // update pin fix
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // PUBLIC ENDPOINTS
+
+                // PUBLIC
                 .requestMatchers(
                         "/ws/**",
                         "/api/auth/**",
@@ -39,18 +41,18 @@ public class SecurityConfig {
                         "/v3/api-docs/**"
                 ).permitAll()
 
-                // ADMIN ONLY
-                .requestMatchers("/api/admin/**")
-                .hasRole("ADMIN")
+                // ADMIN ENDPOINTS — role checks handled per-method via @PreAuthorize
+                // All 4 admin roles are allowed to hit /api/admin/** at the filter level;
+                // the fine-grained check happens inside AdminController via @PreAuthorize.
+                .requestMatchers("/api/admin/**").hasAnyRole(
+                        "SUPER_ADMIN", "ANALYTICS", "TRANSACTIONS", "AUDIT_LOGS"
+                )
 
-                // ALL OTHER API → AUTHENTICATED USERS
+                // ALL OTHER API → AUTHENTICATED USERS ONLY
                 .anyRequest().authenticated()
             )
 
-            .addFilterBefore(
-                    jwtFilter,
-                    UsernamePasswordAuthenticationFilter.class
-            );
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

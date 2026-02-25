@@ -27,7 +27,6 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(
             @Valid @RequestBody LoginRequest request
     ) {
-
         if (request.isAdminLogin()) {
 
             Admin admin = adminRepository.findByEmail(request.getEmail())
@@ -38,11 +37,11 @@ public class AuthController {
                 throw new InvalidRequestException("Invalid admin credentials");
             }
 
-            String token = jwtUtil.generateToken(admin.getEmail(), "ROLE_ADMIN");
+            // ✅ Use the actual role stored in DB, not a hardcoded "ROLE_ADMIN"
+            String token = jwtUtil.generateToken(admin.getEmail(), admin.getRole());
             return ResponseEntity.ok(new AuthResponse(token));
         }
 
         return ResponseEntity.ok(userService.login(request));
     }
 }
-
