@@ -4,12 +4,12 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend,
 } from "recharts";
 import api from "../../api/axios";
+import { useAuth } from "../../auth/AuthContext";
 import "./Analytics.css";
 
 const COLORS      = ["#22c55e", "#f87171", "#eab308", "#60a5fa"];
 const CHART_STYLE = { fontSize: "0.78rem", fontFamily: "Sora, sans-serif" };
 
-// Custom dark tooltip
 const DarkTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
@@ -33,24 +33,48 @@ const DarkTooltip = ({ active, payload, label }) => {
 };
 
 export default function Analytics() {
+  const { adminRole } = useAuth();
+  const isSuperAdmin  = adminRole === "ROLE_SUPER_ADMIN";
+
   const [summary, setSummary]           = useState(null);
   const [distribution, setDistribution] = useState(null);
+  const [error, setError]               = useState(false);
 
   useEffect(() => {
     const loadAnalytics = async () => {
       try {
-        const [summaryRes, distRes] = await Promise.all([
-          api.get("/admin/summary"),
-          api.get("/admin/status-distribution"),
-        ]);
-        setSummary(summaryRes.data);
-        setDistribution(distRes.data);
+        if (isSuperAdmin) {
+          // Super admin gets everything
+          const [summaryRes, distRes] = await Promise.all([
+            api.get("/admin/summary"),
+            api.get("/admin/status-distribution"),
+          ]);
+          setSummary(summaryRes.data);
+          setDistribution(distRes.data);
+        } else {
+          // Analytics admin only gets status-distribution (no summary access)
+          const distRes = await api.get("/admin/status-distribution");
+          setDistribution(distRes.data);
+          // Build a partial summary from distribution data
+          const d = distRes.data;
+          const total = (d.success || 0) + (d.failed || 0) + (d.pending || 0) + (d.initiated || 0);
+          setSummary({ totalTransactions: total, totalVolume: null });
+        }
       } catch (err) {
         console.error("Analytics load failed", err);
+        setError(true);
       }
     };
     loadAnalytics();
-  }, []);
+  }, [isSuperAdmin]);
+
+  if (error) {
+    return (
+      <div className="an-loading" style={{ color: "#ef4444" }}>
+        ⚠️ Failed to load analytics data.
+      </div>
+    );
+  }
 
   if (!summary || !distribution) {
     return (
@@ -62,10 +86,10 @@ export default function Analytics() {
   }
 
   const chartData = [
-    { name: "Success",  value: distribution.success  },
-    { name: "Failed",   value: distribution.failed   },
-    { name: "Pending",  value: distribution.pending  },
-    { name: "Initiated",value: distribution.initiated},
+    { name: "Success",   value: distribution.success   || 0 },
+    { name: "Failed",    value: distribution.failed    || 0 },
+    { name: "Pending",   value: distribution.pending   || 0 },
+    { name: "Initiated", value: distribution.initiated || 0 },
   ];
 
   const successRate = summary.totalTransactions === 0
@@ -87,11 +111,18 @@ export default function Analytics() {
           <div className="an-card__label">Total Transactions</div>
           <div className="an-card__value">{summary.totalTransactions}</div>
         </div>
-        <div className="an-card" style={{ animationDelay: "0.07s" }}>
-          <span className="an-card__icon">💰</span>
-          <div className="an-card__label">Successful Volume</div>
-          <div className="an-card__value">₹{Number(summary.totalVolume).toLocaleString("en-IN")}</div>
-        </div>
+
+        {/* Volume only visible to super admin — analytics admin doesn't have access */}
+        {isSuperAdmin && (
+          <div className="an-card" style={{ animationDelay: "0.07s" }}>
+            <span className="an-card__icon">💰</span>
+            <div className="an-card__label">Successful Volume</div>
+            <div className="an-card__value">
+              ₹{Number(summary.totalVolume).toLocaleString("en-IN")}
+            </div>
+          </div>
+        )}
+
         <div className="an-card" style={{ animationDelay: "0.14s" }}>
           <span className="an-card__icon">📈</span>
           <div className="an-card__label">Success Rate</div>
@@ -102,7 +133,6 @@ export default function Analytics() {
       {/* Charts */}
       <div className="an-charts">
 
-        {/* Pie chart */}
         <div className="an-chart-card">
           <div className="an-chart-card__title">🥧 Status Distribution</div>
           <ResponsiveContainer width="100%" height={300}>
@@ -130,7 +160,6 @@ export default function Analytics() {
           </ResponsiveContainer>
         </div>
 
-        {/* Bar chart */}
         <div className="an-chart-card">
           <div className="an-chart-card__title">📊 Lifecycle Breakdown</div>
           <ResponsiveContainer width="100%" height={300}>

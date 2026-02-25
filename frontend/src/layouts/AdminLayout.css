@@ -88,3 +88,14 @@
   padding: 2rem;
   overflow-y: auto;
 }
+
+.al-topbar__role {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  padding: 0.3rem 0.85rem;
+  margin-right: 0.75rem;
+}

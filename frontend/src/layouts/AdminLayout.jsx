@@ -3,8 +3,15 @@ import AdminSidebar from "../components/admin/AdminSidebar";
 import { useAuth } from "../auth/AuthContext";
 import "./AdminLayout.css";
 
+const ROLE_LABELS = {
+  ROLE_SUPER_ADMIN:  "Super Admin",
+  ROLE_ANALYTICS:    "Analytics Admin",
+  ROLE_TRANSACTIONS: "Transactions Admin",
+  ROLE_AUDIT_LOGS:   "Audit Logs Admin",
+};
+
 export default function AdminLayout() {
-  const { logout } = useAuth();
+  const { logout, adminRole } = useAuth();
 
   return (
     <div className="al-wrapper">
@@ -22,6 +29,10 @@ export default function AdminLayout() {
           </div>
 
           <div className="al-topbar__right">
+            {/* Show which role is currently logged in */}
+            <span className="al-topbar__role">
+              🔐 {ROLE_LABELS[adminRole] ?? "Admin"}
+            </span>
             <button onClick={logout} className="al-topbar__logout">
               ⎋ Logout
             </button>
